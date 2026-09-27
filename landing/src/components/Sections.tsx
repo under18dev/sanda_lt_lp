@@ -77,7 +77,7 @@ export const FaqPage = () => (
 )
 
 export const SessionPage = ({ session }: { session: (typeof sessions)[number] }) => (
-  <main><PageDataIntro eyebrow={`${session.category.toUpperCase()} / ${session.start} — ${session.end}`} title={session.title} description={session.summary} /><section class="section wrap detail-copy"><div class={`detail-color detail-color-${session.color}`}></div><p class="detail-lead">{session.detail}</p><div class="detail-meta"><span>DATE {session.date}</span><span>TIME {session.start} — {session.end}</span><span>SPEAKER {session.speakerIds.map((id) => speakers.find((speaker) => speaker.id === id)?.name).join(' / ')}</span></div><a class="pill" href="/timetable">タイムテーブルに戻る →</a></section></main>
+  <main><PageDataIntro eyebrow={`${session.category.toUpperCase()} / ${session.start} — ${session.end}`} title={session.title} description={session.summary} compactTitle /><section class="section wrap detail-copy"><div class={`detail-color detail-color-${session.color}`}></div><p class="detail-lead">{session.detail}</p><div class="detail-meta"><span>DATE {session.date}</span><span>TIME {session.start} — {session.end}</span><span>SPEAKER {session.speakerIds.map((id) => speakers.find((speaker) => speaker.id === id)?.name).join(' / ')}</span></div><a class="pill" href="/timetable">タイムテーブルに戻る →</a></section></main>
 )
 
 export const SpeakerPage = ({ speakerId }: { speakerId: string }) => {
@@ -104,6 +104,7 @@ export const SpeakerPage = ({ speakerId }: { speakerId: string }) => {
   )
 }
 
-const PageDataIntro = ({ eyebrow, title, description, preserveLineBreaks = false }: { eyebrow: string; title: string; description: string; preserveLineBreaks?: boolean }) => (
-  <section class="page-intro wrap"><div class="eyebrow">{eyebrow}</div><h1>{title}</h1><p class={preserveLineBreaks ? 'preserve-line-breaks' : undefined}>{description}</p></section>
-)
+const PageDataIntro = ({ eyebrow, title, description, preserveLineBreaks = false, compactTitle = false }: { eyebrow: string; title: string; description: string; preserveLineBreaks?: boolean; compactTitle?: boolean }) => {
+  const titleLengthClass = title.length > 52 ? 'page-intro-title-extra-long' : title.length > 30 ? 'page-intro-title-long' : ''
+  return <section class={`page-intro wrap ${compactTitle ? `page-intro-session ${titleLengthClass}` : ''}`}><div class="eyebrow">{eyebrow}</div><h1>{title}</h1><p class={preserveLineBreaks ? 'preserve-line-breaks' : undefined}>{description}</p></section>
+}
