@@ -23,7 +23,7 @@ fi
   docker compose build web
   docker compose up -d --no-deps web
   for attempt in {1..30}; do
-    if curl --fail --silent --show-error http://127.0.0.1:3000/healthz >/dev/null; then
+    if docker compose exec -T web bun -e "fetch('http://127.0.0.1:3000/healthz').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))" >/dev/null 2>&1; then
       printf '%s deployment succeeded\n' "$(date -Is)"
       exit 0
     fi
