@@ -1,7 +1,7 @@
 import type { Child } from 'hono/jsx'
 import { event } from '../data/event'
 
-const assetVersion = '2026-09-27-12'
+const assetVersion = '2026-09-27-13'
 
 type LayoutProps = {
   title?: string
@@ -14,23 +14,62 @@ type LayoutProps = {
 
 export const Layout = ({ title, description = event.description, ogImage = event.defaultOgpImage, url, children, active }: LayoutProps) => {
   const pageTitle = title ? `${title} | ${event.title}` : event.title
-  const absoluteUrl = url ? new URL(url).toString() : undefined
-  const absoluteOgImage = ogImage && absoluteUrl ? new URL(ogImage, absoluteUrl).toString() : ogImage
+  const requestPath = url ? new URL(url).pathname : '/'
+  const canonicalUrl = new URL(requestPath, event.siteUrl).toString()
+  const absoluteOgImage = ogImage ? new URL(ogImage, event.siteUrl).toString() : undefined
+  const metaDescription = shorten(description, 155)
+  const structuredData = title ? {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: pageTitle,
+    description: metaDescription,
+    url: canonicalUrl,
+    isPartOf: { '@type': 'WebSite', name: event.title, url: event.siteUrl },
+  } : {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description,
+    url: canonicalUrl,
+    image: [new URL(event.ogpImage, event.siteUrl).toString()],
+    startDate: '2026-11-02T09:00:00+09:00',
+    endDate: '2026-11-02T16:00:00+09:00',
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: event.venue,
+      address: { '@type': 'PostalAddress', streetAddress: '南が丘2-13-65', postalCode: '669-1535', addressLocality: '三田市', addressRegion: '兵庫県', addressCountry: 'JP' },
+    },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY', availability: 'https://schema.org/InStock', url: event.connpassUrl },
+    organizer: { '@type': 'Person', name: event.organizer, url: event.siteUrl },
+  }
 
   return <html lang="ja">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="description" content={description} />
+      <meta name="description" content={metaDescription} />
+      <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta name="theme-color" content="#ededf0" />
       <title>{pageTitle}</title>
+      <link rel="canonical" href={canonicalUrl} />
       <meta property="og:type" content="website" />
       <meta property="og:title" content={pageTitle} />
-      <meta property="og:description" content={description} />
-      {absoluteUrl && <meta property="og:url" content={absoluteUrl} />}
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:site_name" content={event.title} />
+      <meta property="og:locale" content="ja_JP" />
       {absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
+      {absoluteOgImage && <meta property="og:image:width" content="1200" />}
+      {absoluteOgImage && <meta property="og:image:height" content="630" />}
+      {absoluteOgImage && <meta property="og:image:alt" content={`${pageTitle} OGP`} />}
       <meta name="twitter:card" content={absoluteOgImage ? 'summary_large_image' : 'summary'} />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={metaDescription} />
       {absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
+      {absoluteOgImage && <meta name="twitter:image:alt" content={`${pageTitle} OGP`} />}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <link rel="stylesheet" href={`/assets/app.css?v=${assetVersion}`} />
     </head>
     <body>
@@ -43,6 +82,11 @@ export const Layout = ({ title, description = event.description, ogImage = event
       <script type="module" src={`/assets/client.js?v=${assetVersion}`}></script>
     </body>
   </html>
+}
+
+const shorten = (value: string, maxLength: number) => {
+  const normalized = value.replace(/\s+/g, ' ').trim()
+  return normalized.length > maxLength ? `${[...normalized].slice(0, maxLength - 1).join('')}…` : normalized
 }
 
 export const Header = ({ active }: { active?: string }) => (
