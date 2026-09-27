@@ -25,9 +25,18 @@ const fallbackImage = (label: string, color: string) => {
 const imageDataUri = async (path: string | undefined, label: string, color: string) => {
   if (!path) return fallbackImage(label, color)
   try {
-    const buffer = await readFile(join(publicDir, path.replace(/^\//, '')))
-    const extension = extname(path).toLowerCase()
-    const mime = extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : extension === '.png' ? 'image/png' : 'image/webp'
+    let buffer: Buffer
+    let remoteMime: string | undefined
+    if (/^https?:\/\//.test(path)) {
+      const response = await fetch(path)
+      if (!response.ok) throw new Error(`Image request failed: ${response.status}`)
+      buffer = Buffer.from(await response.arrayBuffer())
+      remoteMime = response.headers.get('content-type')?.split(';')[0]
+    } else {
+      buffer = await readFile(join(publicDir, path.replace(/^\//, '')))
+    }
+    const extension = extname(new URL(path, 'https://local.invalid').pathname).toLowerCase()
+    const mime = remoteMime ?? (extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : extension === '.png' ? 'image/png' : 'image/webp')
     return `data:${mime};base64,${buffer.toString('base64')}`
   } catch {
     return fallbackImage(label, color)
