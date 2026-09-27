@@ -103,7 +103,7 @@ export const speakers: Speaker[] = [
     role: 'Speaker',
     category: 'other',
     bio: `やりたいことができる状況でやりたくないことを優先しなきゃ行けないことってありますよね。いつもその中で生きています`,
-    icon: '/images/speakers/ikkia-atsu.jpg',
+    icon: 'https://sglt.under18.dev/images/speakers/ikkia-atsu.jpg',
     online: false,
   },
   {
