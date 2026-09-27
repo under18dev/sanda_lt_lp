@@ -34,12 +34,12 @@ button { font: inherit; }
 .hero { min-height: 650px; padding: 100px 0 90px; border-bottom: 2px solid var(--line); position: relative; }
 .hero:after { content: "//"; position: absolute; z-index: 0; right: 0; top: 75px; font-size: 120px; font-weight: 900; line-height: 1; color: var(--blue); }
 .hero-decoration { position: absolute; z-index: 0; inset: 0; pointer-events: none; isolation: isolate; }
-.hero > *:not(.hero-decoration) { position: relative; z-index: 1; }
+.hero > *:not(.hero-decoration):not(.page-loader) { position: relative; z-index: 1; }
 .hero-decoration span { position: absolute; z-index: -1; display: block; border: 2px solid var(--line); border-radius: 50%; pointer-events: none; }
 .hero-decoration span:nth-child(1) { width: 16px; height: 16px; right: 17%; top: 31%; background: var(--red); }
 .hero-decoration span:nth-child(2) { width: 34px; height: 34px; left: 1%; bottom: 13%; background: var(--yellow); }
 .hero-decoration span:nth-child(3) { width: 70px; height: 70px; right: 8%; bottom: 12%; background: var(--green); }
-.page-loader { position: fixed; z-index: 20; inset: 0; display: grid; place-content: center; gap: 18px; background: var(--ink); color: #fff; text-align: center; pointer-events: none; animation: loader-out .35s ease 1.4s forwards; }
+.hero > .page-loader { position: fixed; z-index: 20; inset: 0; width: 100vw; height: 100vh; display: grid; place-content: center; gap: 18px; background: var(--ink); color: #fff; text-align: center; pointer-events: none; animation: loader-out .35s ease 1.4s forwards; }
 .page-loader-signal { display: flex; justify-content: center; gap: 10px; }
 .page-loader-signal span { display: block; width: 18px; height: 18px; border: 2px solid #fff; border-radius: 50%; background: transparent; animation: signal-pulse .8s ease-in-out infinite; }
 .page-loader-signal span:nth-child(2) { animation-delay: .12s; }
