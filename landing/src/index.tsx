@@ -9,6 +9,16 @@ import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero
 
 const app = new Hono()
 
+const xmlEscape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;')
+
+app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nSitemap: ${event.siteUrl}/sitemap.xml\n`))
+
+app.get('/sitemap.xml', (c) => {
+  const paths = ['/', '/timetable', '/speakers', '/access', '/faq', ...sessions.map((session) => `/sessions/${session.id}`), ...speakers.map((speaker) => `/speakers/${speaker.id}`)]
+  const body = paths.map((path) => `  <url><loc>${xmlEscape(new URL(path, event.siteUrl).toString())}</loc></url>`).join('\n')
+  return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`, 200, { 'Content-Type': 'application/xml; charset=UTF-8' })
+})
+
 app.use('/assets/*', serveStatic({ root: './dist' }))
 app.use('/images/*', serveStatic({ root: './dist' }))
 
@@ -41,10 +51,10 @@ app.get('/', (c) => c.html(
   </Layout>,
 ))
 
-app.get('/timetable', (c) => c.html(<Layout title="Timetable" active="timetable"><TimetablePage /></Layout>))
-app.get('/speakers', (c) => c.html(<Layout title="Speakers" active="speakers"><SpeakersPage /></Layout>))
-app.get('/access', (c) => c.html(<Layout title="Access" active="access"><AccessPage /></Layout>))
-app.get('/faq', (c) => c.html(<Layout title="FAQ" active="faq"><FaqPage /></Layout>))
+app.get('/timetable', (c) => c.html(<Layout title="タイムテーブル" url={c.req.url} active="timetable"><TimetablePage /></Layout>))
+app.get('/speakers', (c) => c.html(<Layout title="登壇者" url={c.req.url} active="speakers"><SpeakersPage /></Layout>))
+app.get('/access', (c) => c.html(<Layout title="アクセス" url={c.req.url} active="access"><AccessPage /></Layout>))
+app.get('/faq', (c) => c.html(<Layout title="よくある質問" url={c.req.url} active="faq"><FaqPage /></Layout>))
 
 app.get('/sessions/:id', (c) => {
   const session = sessions.find((candidate) => candidate.id === c.req.param('id'))
