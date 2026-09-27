@@ -58,7 +58,7 @@ button { font: inherit; }
 .info-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .info { display: flex; align-items: center; gap: 8px; border: 2px solid var(--line); border-radius: 999px; padding: 10px 14px; background: var(--paper); font-size: 12px; font-weight: 800; }
 .info i { width: 9px; height: 9px; border-radius: 50%; }
-.dot-green { background: var(--green); } .dot-yellow { background: var(--yellow); } .dot-red { background: var(--red); }
+.dot-green { background: var(--green); } .dot-yellow { background: var(--yellow); } .dot-red { background: var(--red); } .dot-blue { background: var(--blue); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 .section { padding: 92px 0; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 35px; }

@@ -32,7 +32,7 @@ export const Layout = ({ title, description = event.description, ogImage = event
     description: event.description,
     url: canonicalUrl,
     image: [new URL(event.ogpImage, event.siteUrl).toString()],
-    startDate: '2026-11-02T09:00:00+09:00',
+    startDate: '2026-11-02T09:30:00+09:00',
     endDate: '2026-11-02T16:00:00+09:00',
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',

@@ -24,7 +24,8 @@ export const Hero = () => (
 export const EventFacts = () => (
   <div class="info-row">
     <span class="info"><i class="dot-green"></i>{event.dateLabel}</span>
-    <span class="info"><i class="dot-yellow"></i>{event.venue}</span>
+    <span class="info"><i class="dot-blue"></i>一般参加 {event.timeLabel}</span>
+    <span class="info"><i class="dot-yellow"></i>{event.venue} / 中学校舎</span>
     <span class="info"><i class="dot-red"></i>参加費 {event.fee}</span>
   </div>
 )
@@ -53,7 +54,7 @@ export const AiWerewolf = () => (
 )
 
 export const AccessPreview = () => (
-  <section class="section wrap" id="access"><SectionHeading title="Access" description="会場や入場方法の詳細は、確定次第更新します。" /><div class="access-grid"><div class="access-item"><span>DATE</span><strong>{event.dateLabel}</strong><p>{event.timeLabel}</p></div><div class="access-item"><span>PLACE</span><strong>{event.venue}</strong><p>{event.venueDetail}</p></div><div class="access-item"><span>ENTRY</span><strong>{event.fee}</strong><p>定員 {event.capacity}</p></div></div><div class="section-link"><a class="pill" href="/access">アクセス・参加方法を見る →</a></div></section>
+  <section class="section wrap" id="access"><SectionHeading title="Access" description="一般参加は09:30から。スタッフ準備時間とは分けて案内しています。" /><div class="access-grid"><div class="access-item"><span>DATE</span><strong>{event.dateLabel}</strong><p>一般参加 {event.timeLabel}<br />{event.setupTimeLabel}</p></div><div class="access-item"><span>PLACE</span><strong>{event.venue}</strong><p>{event.venueDetail}</p></div><div class="access-item"><span>ENTRY</span><strong>{event.fee}</strong><p>定員 {event.capacity}</p></div></div><div class="section-link"><a class="pill" href="/access">アクセス・参加方法を見る →</a></div></section>
 )
 
 export const FaqPreview = () => (
@@ -69,7 +70,7 @@ export const SpeakersPage = () => (
 )
 
 export const AccessPage = () => (
-  <main><PageDataIntro eyebrow="PLACE / ACCESS" title="Access" description="三田学園文化祭の会場で開催します。細かな場所は決まり次第更新します。" /><section class="section wrap"><div class="access-detail-grid"><div><span>DATE</span><h2>{event.dateLabel}</h2><p>{event.timeLabel}</p></div><div><span>VENUE</span><h2>{event.venue}</h2><p>{event.venueDetail}</p></div><div><span>ENTRY</span><h2>{event.fee}</h2><p>定員 {event.capacity} / connpass登録制</p></div><div><span>STREAM</span><h2>{event.streamUrl ? 'YouTube' : 'TBD'}</h2><p>{event.streamUrl ? <a href={event.streamUrl}>配信を見る ↗</a> : '配信URLは準備中です。'}</p></div></div><div class="notice"><strong>文化祭への入場について</strong><p>文化祭側の入場ルールに従ってください。詳細は決まり次第、connpassとこのサイトでお知らせします。</p></div><a class="pill primary" href={event.connpassUrl} target="_blank" rel="noreferrer">connpassで参加する ↗</a></section></main>
+  <main><PageDataIntro eyebrow="PLACE / ACCESS" title="Access" description="三田学園文化祭の中学校舎で開催します。一般参加は09:30から、スタッフ準備は09:00からです。" /><section class="section wrap"><div class="access-detail-grid"><div><span>DATE</span><h2>{event.dateLabel}</h2><p>一般参加 {event.timeLabel}<br />{event.setupTimeLabel}</p></div><div><span>VENUE</span><h2>{event.venue}</h2><p>{event.venueDetail}</p></div><div><span>ENTRY</span><h2>{event.fee}</h2><p>定員 {event.capacity} / connpass登録制</p></div><div><span>STREAM</span><h2>{event.streamUrl ? 'YouTube' : 'TBD'}</h2><p>{event.streamUrl ? <a href={event.streamUrl}>配信を見る ↗</a> : '配信URLは準備中です。'}</p></div></div><div class="notice"><strong>文化祭への入場について</strong><p>文化祭側の入場ルールに従ってください。詳細は決まり次第、connpassとこのサイトでお知らせします。</p></div><a class="pill primary" href={event.connpassUrl} target="_blank" rel="noreferrer">connpassで参加する ↗</a></section></main>
 )
 
 export const FaqPage = () => (
