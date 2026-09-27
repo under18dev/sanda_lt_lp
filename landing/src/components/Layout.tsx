@@ -1,5 +1,5 @@
 import type { Child } from 'hono/jsx'
-import { event, sessions } from '../data/runtime'
+import { event, sessions, sponsors } from '../data/runtime'
 
 const assetVersion = '2026-09-27-19'
 
@@ -80,6 +80,7 @@ export const Layout = ({ title, description = event.description, ogImage = event
       </div>
       <div id="client-root" data-active={active ?? ''}></div>
       <script type="application/json" id="runtime-sessions" dangerouslySetInnerHTML={{ __html: JSON.stringify(sessions).replaceAll('<', '\\u003c') }} />
+      <script type="application/json" id="runtime-sponsors" dangerouslySetInnerHTML={{ __html: JSON.stringify(sponsors).replaceAll('<', '\\u003c') }} />
       <script type="module" src={`/assets/client.js?v=${assetVersion}`}></script>
     </body>
   </html>
@@ -97,6 +98,7 @@ export const Header = ({ active }: { active?: string }) => (
       <a class={active === 'timetable' ? 'is-active' : ''} href="/timetable">PROGRAM</a>
       <a class={active === 'speakers' ? 'is-active' : ''} href="/speakers">SPEAKERS</a>
       <a class={active === 'special' ? 'is-active' : ''} href="/#special">SPECIAL</a>
+      <a class={active === 'sponsors' ? 'is-active' : ''} href="/sponsors">SPONSORS</a>
       <a class={active === 'faq' ? 'is-active' : ''} href="/faq">FAQ</a>
     </nav>
     <a class="pill header-join" href={event.connpassUrl} target="_blank" rel="noreferrer">参加登録 ↗</a>

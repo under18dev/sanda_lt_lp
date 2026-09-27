@@ -52,7 +52,7 @@ const MobileMenu = () => {
   }, [open])
 
   if (!open) return null
-  return <nav class="mobile-menu" id="mobile-menu" aria-label="モバイルナビゲーション"><a href="/timetable">PROGRAM</a><a href="/speakers">SPEAKERS</a><a href="/#special">SPECIAL</a><a href="/faq">FAQ</a></nav>
+  return <nav class="mobile-menu" id="mobile-menu" aria-label="モバイルナビゲーション"><a href="/timetable">PROGRAM</a><a href="/speakers">SPEAKERS</a><a href="/#special">SPECIAL</a><a href="/sponsors">SPONSORS</a><a href="/faq">FAQ</a></nav>
 }
 
 const SessionDialog = () => {
@@ -80,6 +80,27 @@ const SessionDialog = () => {
   return <div class="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setSelectedId(null) }}><section class="session-modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title"><button class="modal-close" type="button" aria-label="閉じる" onClick={() => setSelectedId(null)}>×</button><div class="session-label">{selected.category === 'special' ? 'SPECIAL' : '10 MIN TALK'}</div><h2 id="session-modal-title">{selected.title}</h2><p>{selected.detail}</p><div class="detail-meta"><span>{selected.date}</span><span>{selected.start} — {selected.end}</span></div><a class="pill" href={`/sessions/${selected.id}`}>詳細ページを見る ↗</a></section></div>
 }
 
+const SponsorDialog = () => {
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const data = document.getElementById('runtime-sponsors')?.textContent
+  const sponsors = data ? JSON.parse(data) as Array<{ id: string; name: string; tier: string; description: string; detail: string; logo?: string; url?: string }> : []
+  const selected = sponsors.find((sponsor) => sponsor.id === selectedId)
+  useEffect(() => {
+    const open = (event: Event) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      const card = target.closest<HTMLAnchorElement>('[data-sponsor-id]')
+      if (!card?.dataset.sponsorId) return
+      event.preventDefault()
+      setSelectedId(card.dataset.sponsorId)
+    }
+    document.addEventListener('click', open)
+    return () => document.removeEventListener('click', open)
+  }, [])
+  if (!selected) return null
+  return <div class="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setSelectedId(null) }}><section class="session-modal sponsor-modal" role="dialog" aria-modal="true" aria-labelledby="sponsor-modal-title"><button class="modal-close" type="button" aria-label="閉じる" onClick={() => setSelectedId(null)}>×</button><div class="session-label">{selected.tier} / SPONSOR</div>{selected.logo && <img class="sponsor-modal-logo" src={selected.logo} alt={`${selected.name} ロゴ`} />}<h2 id="sponsor-modal-title">{selected.name}</h2><p class="preserve-line-breaks">{selected.detail}</p><div class="sponsor-modal-actions">{selected.url && <a class="pill primary" href={selected.url} target="_blank" rel="noreferrer">Webサイトを見る ↗</a>}<a class="pill" href={`/sponsors/${selected.id}`}>詳細ページを見る ↗</a></div></section></div>
+}
+
 const App = () => {
   useEffect(() => {
     const reveal = () => document.querySelectorAll<HTMLElement>('.section').forEach((section) => section.classList.add('is-visible'))
@@ -98,7 +119,7 @@ const App = () => {
       window.clearTimeout(removeTimer)
     }
   }, [])
-  return <><MobileMenu /><SessionDialog /></>
+  return <><MobileMenu /><SessionDialog /><SponsorDialog /></>
 }
 
 const clientRoot = document.getElementById('client-root')

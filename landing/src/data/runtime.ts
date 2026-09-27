@@ -4,6 +4,7 @@ import { event as seedEvent } from './event'
 import { speakers as seedSpeakers, type Speaker } from './speakers'
 import { sessions as seedSessions, type Session } from './sessions'
 import { faqs as seedFaqs } from './faq'
+import { sponsors as seedSponsors, type Sponsor } from './sponsors'
 
 export type EventRecord = {
   siteUrl: string
@@ -42,6 +43,7 @@ export let event: EventRecord = structuredClone(seedEvent) as unknown as EventRe
 export let speakers: Speaker[] = structuredClone(seedSpeakers)
 export let sessions: Session[] = structuredClone(seedSessions)
 export let faqs: Faq[] = structuredClone(seedFaqs).map((faq, index) => ({ ...faq, sortOrder: index }))
+export let sponsors: Sponsor[] = structuredClone(seedSponsors)
 export let sessionDates = structuredClone([
   { id: '2026-11-02' as const, label: '11.02 MON' },
   { id: '2026-11-03' as const, label: '11.03 TUE' },
@@ -63,6 +65,7 @@ const ensureSchema = () => {
   db.run(`CREATE TABLE IF NOT EXISTS session_speakers (session_id TEXT NOT NULL, speaker_id TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (session_id, speaker_id))`)
   db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (id TEXT PRIMARY KEY, csrf TEXT NOT NULL, expires_at INTEGER NOT NULL)`)
   db.run(`CREATE TABLE IF NOT EXISTS faqs (id TEXT PRIMARY KEY, question TEXT NOT NULL, answer TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
+  db.run(`CREATE TABLE IF NOT EXISTS sponsors (id TEXT PRIMARY KEY, name TEXT NOT NULL, tier TEXT NOT NULL, description TEXT NOT NULL, detail TEXT NOT NULL, url TEXT, logo TEXT, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
 }
 
 const seed = () => {
@@ -84,6 +87,11 @@ const seed = () => {
     const insertFaq = db.query('INSERT INTO faqs (id, question, answer, sort_order) VALUES (?, ?, ?, ?)')
     seedFaqs.forEach((faq, index) => insertFaq.run(faq.id, faq.question, faq.answer, index))
   }
+  const sponsorCount = db.query('SELECT COUNT(*) AS count FROM sponsors').get() as { count: number }
+  if (sponsorCount.count === 0 && seedSponsors.length > 0) {
+    const insertSponsor = db.query('INSERT INTO sponsors (id, name, tier, description, detail, url, logo, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    seedSponsors.forEach((sponsor, index) => insertSponsor.run(sponsor.id, sponsor.name, sponsor.tier, sponsor.description, sponsor.detail, sponsor.url ?? null, sponsor.logo ?? null, index))
+  }
 }
 
 export const refreshStore = () => {
@@ -100,6 +108,8 @@ export const refreshStore = () => {
   })
   const faqRows = db.query('SELECT id, question, answer, sort_order FROM faqs WHERE published = 1 ORDER BY sort_order, id').all() as Array<Record<string, unknown>>
   faqs = faqRows.map((row) => ({ id: String(row.id), question: String(row.question), answer: String(row.answer), sortOrder: Number(row.sort_order) }))
+  const sponsorRows = db.query('SELECT id, name, tier, description, detail, url, logo, sort_order FROM sponsors WHERE published = 1 ORDER BY sort_order, id').all() as Array<Record<string, unknown>>
+  sponsors = sponsorRows.map((row) => ({ id: String(row.id), name: String(row.name), tier: String(row.tier) as Sponsor['tier'], description: String(row.description), detail: String(row.detail), url: row.url ? String(row.url) : undefined, logo: row.logo ? String(row.logo) : undefined, sortOrder: Number(row.sort_order) }))
 }
 
 ensureSchema()
@@ -150,6 +160,19 @@ export const deleteFaq = (id: string) => { db.query('DELETE FROM faqs WHERE id =
 
 export const reorderFaqs = (orderedIds: string[]) => {
   const update = db.query('UPDATE faqs SET sort_order = ? WHERE id = ?')
+  orderedIds.forEach((id, index) => update.run(index, id))
+  refreshStore()
+}
+
+export const saveSponsor = (sponsor: Sponsor) => {
+  db.query(`INSERT INTO sponsors (id, name, tier, description, detail, url, logo, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, tier=excluded.tier, description=excluded.description, detail=excluded.detail, url=excluded.url, logo=excluded.logo, sort_order=excluded.sort_order`).run(sponsor.id, sponsor.name, sponsor.tier, sponsor.description, sponsor.detail, sponsor.url ?? null, sponsor.logo ?? null, sponsor.sortOrder)
+  refreshStore()
+}
+
+export const deleteSponsor = (id: string) => { db.query('DELETE FROM sponsors WHERE id = ?').run(id); refreshStore() }
+
+export const reorderSponsors = (orderedIds: string[]) => {
+  const update = db.query('UPDATE sponsors SET sort_order = ? WHERE id = ?')
   orderedIds.forEach((id, index) => update.run(index, id))
   refreshStore()
 }

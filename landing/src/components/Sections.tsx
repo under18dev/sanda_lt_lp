@@ -1,6 +1,7 @@
-import { event, faqs, sessionDates, sessions, speakers, speakerCategories } from '../data/runtime'
+import { event, faqs, sessionDates, sessions, speakers, sponsors, speakerCategories } from '../data/runtime'
 import { SectionHeading } from './Layout'
 import { SessionCard, SpeakerCard, SpeakerList, TimetableRow } from './Cards'
+import { sponsorTiers } from '../data/sponsors'
 
 export const Hero = () => (
   <section class="hero wrap">
@@ -54,6 +55,14 @@ export const AccessPreview = () => (
   <section class="section wrap" id="access"><SectionHeading title="Access" description="一般参加は09:30から。スタッフ準備時間とは分けて案内しています。" /><div class="access-grid"><div class="access-item"><span>DATE</span><strong>{event.dateLabel}</strong><p>一般参加 {event.timeLabel}<br />{event.setupTimeLabel}</p></div><div class="access-item"><span>PLACE</span><strong>{event.venue}</strong><p>{event.venueDetail}</p></div><div class="access-item"><span>ENTRY</span><strong>{event.fee}</strong><p>定員 {event.capacity}</p></div></div><div class="section-link"><a class="pill" href="/access">アクセス・参加方法を見る →</a></div></section>
 )
 
+export const Sponsors = () => (
+  <section class="section wrap sponsors-section" id="sponsors">
+    <SectionHeading title="Sponsors" description="この場を一緒につくる、協賛・スポンサーのみなさま。" />
+    {sponsors.length > 0 ? <div class="sponsor-grid">{sponsors.map((sponsor) => <a class={`sponsor-card sponsor-card-${sponsor.tier.toLowerCase()}`} href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id}><div class="sponsor-tier">{sponsor.tier}</div>{sponsor.logo ? <img src={sponsor.logo} alt={`${sponsor.name} ロゴ`} /> : <strong>{sponsor.name}</strong>}<p>{sponsor.description}</p><span class="sponsor-card-link">詳細を見る ↗</span></a>)}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>協賛パートナーを<br />募集しています。</h3></div><p>イベントの趣旨に共感し、知らない世界と出会う場を一緒につくってくださる方を募集しています。掲載内容は決まり次第更新します。</p></div>}
+    <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class={`sponsor-tier-item sponsor-tier-${tier.color}`}><span>{tier.name}</span><p>{tier.description}</p></div>)}</div>
+  </section>
+)
+
 export const FaqPreview = () => (
   <section class="section wrap" id="faq"><SectionHeading title="FAQ" description="はじめてでも大丈夫。よくある質問をまとめています。" /><div class="faq-list">{faqs.slice(0, 4).map((faq) => <details key={faq.id}><summary>{faq.question}<span>＋</span></summary><p>{faq.answer}</p></details>)}</div><div class="section-link"><a class="pill" href="/faq">FAQをすべて見る →</a></div></section>
 )
@@ -73,6 +82,16 @@ export const AccessPage = () => (
 export const FaqPage = () => (
   <main><PageDataIntro eyebrow="QUESTIONS / FAQ" title="FAQ" description="参加前に気になることをまとめました。" /><section class="section wrap"><div class="faq-list faq-list-large">{faqs.map((faq) => <details key={faq.id}><summary>{faq.question}<span>＋</span></summary><p>{faq.answer}</p></details>)}</div></section></main>
 )
+
+export const SponsorsPage = () => (
+  <main><PageDataIntro eyebrow="PARTNERS / SPONSORS" title="Sponsors" description="このイベントを支えてくださる協賛・スポンサーのみなさま。" /><Sponsors /></main>
+)
+
+export const SponsorPage = ({ sponsorId }: { sponsorId: string }) => {
+  const sponsor = sponsors.find((candidate) => candidate.id === sponsorId)
+  if (!sponsor) return <main><PageDataIntro eyebrow="404 / SPONSOR" title="Sponsor not found" description="協賛・スポンサー情報が見つかりませんでした。" /></main>
+  return <main><PageDataIntro eyebrow={`${sponsor.tier} / SPONSOR`} title={sponsor.name} description={sponsor.description} /><section class="section wrap sponsor-detail"><div class={`sponsor-detail-brand sponsor-card-${sponsor.tier.toLowerCase()}`}>{sponsor.logo ? <img src={sponsor.logo} alt={`${sponsor.name} ロゴ`} /> : <strong>{sponsor.name}</strong>}</div><div><div class="eyebrow">ABOUT THE PARTNER</div><p class="detail-lead preserve-line-breaks">{sponsor.detail}</p>{sponsor.url && <a class="pill primary" href={sponsor.url} target="_blank" rel="noreferrer">Webサイトを見る ↗</a>}<br /><a class="pill" href="/sponsors">協賛一覧に戻る →</a></div></section></main>
+}
 
 export const SessionPage = ({ session }: { session: (typeof sessions)[number] }) => (
   <main><PageDataIntro eyebrow={`${session.category.toUpperCase()} / ${session.start} — ${session.end}`} title={session.title} description={session.summary} compactTitle /><section class="section wrap detail-copy"><div class={`detail-color detail-color-${session.color}`}></div><p class="detail-lead">{session.detail}</p><div class="detail-meta"><span>DATE {session.date}</span><span>TIME {session.start} — {session.end}</span><span>SPEAKER {session.speakerIds.map((id) => speakers.find((speaker) => speaker.id === id)?.name).join(' / ')}</span></div><a class="pill" href="/timetable">タイムテーブルに戻る →</a></section></main>

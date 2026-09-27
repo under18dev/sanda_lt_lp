@@ -1,10 +1,10 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { event, faqs, sessions, speakers, refreshStore, reorderFaqs, reorderSessions, reorderSpeakers, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
+import { event, faqs, sessions, speakers, sponsors, refreshStore, reorderFaqs, reorderSessions, reorderSpeakers, reorderSponsors, saveEvent, saveFaq, saveSession, saveSpeaker, saveSponsor, deleteFaq, deleteSession, deleteSpeaker, deleteSponsor } from './data/runtime'
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
-import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
-import { Dashboard, EventForm, FaqForm, FaqList, Login, SessionForm, SessionList, SpeakerForm, SpeakerList } from './admin/views'
+import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
+import { Dashboard, EventForm, FaqForm, FaqList, Login, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
 import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -19,7 +19,7 @@ const field = (body: Record<string, unknown>, name: string) => typeof body[name]
 const fieldList = (body: Record<string, unknown>, name: string) => { const value = body[name]; return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : typeof value === 'string' ? [value] : [] }
 const adminGuard = (c: Parameters<typeof requireAdmin>[0]) => requireAdmin(c)
 
-const saveUploadedImage = async (file: unknown, area: 'speakers' | 'event') => {
+const saveUploadedImage = async (file: unknown, area: 'speakers' | 'event' | 'sponsors') => {
   if (!(file instanceof File) || file.size === 0) return undefined
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) throw new Error('画像はJPEG、PNG、WebPの5MB以下にしてください。')
   const buffer = await sharp(Buffer.from(await file.arrayBuffer())).rotate().resize(1000, 1000, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 86 }).toBuffer()
@@ -34,7 +34,7 @@ const xmlEscape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('
 app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nSitemap: ${event.siteUrl}/sitemap.xml\n`))
 
 app.get('/sitemap.xml', (c) => {
-  const paths = ['/', '/timetable', '/speakers', '/access', '/faq', ...sessions.map((session) => `/sessions/${session.id}`), ...speakers.map((speaker) => `/speakers/${speaker.id}`)]
+  const paths = ['/', '/timetable', '/speakers', '/access', '/faq', '/sponsors', ...sessions.map((session) => `/sessions/${session.id}`), ...speakers.map((speaker) => `/speakers/${speaker.id}`), ...sponsors.map((sponsor) => `/sponsors/${sponsor.id}`)]
   const body = paths.map((path) => `  <url><loc>${xmlEscape(new URL(path, event.siteUrl).toString())}</loc></url>`).join('\n')
   return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`, 200, { 'Content-Type': 'application/xml; charset=UTF-8' })
 })
@@ -101,6 +101,36 @@ const saveSpeakerRequest = async (c: Parameters<typeof requireAdmin>[0], existin
   try { icon = await saveUploadedImage(body.icon, 'speakers') ?? icon } catch (error) { return c.text(error instanceof Error ? error.message : '画像を保存できませんでした。', 400) }
   saveSpeaker({ id, name: field(body, 'name'), handle: field(body, 'handle') || undefined, role: field(body, 'role'), category: field(body, 'category'), bio: field(body, 'bio'), icon, online: body.online === 'on' })
   return c.redirect(`/admin/speakers/${id}`)
+}
+
+app.get('/admin/sponsors', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SponsorList csrf={session.csrf} />) })
+app.get('/admin/sponsors/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SponsorForm csrf={session.csrf} />) })
+app.get('/admin/sponsors/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const sponsor = sponsors.find((item) => item.id === c.req.param('id')); if (!sponsor) return c.notFound(); return c.html(<SponsorForm csrf={session.csrf} sponsor={sponsor} />) })
+app.post('/admin/sponsors/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSponsorRequest(c, undefined) })
+app.post('/admin/sponsors/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSponsorRequest(c, c.req.param('id')) })
+app.post('/admin/sponsors/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSponsor(c.req.param('id')); return c.redirect('/admin/sponsors') })
+app.post('/admin/sponsors/reorder', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  let orderedIds: string[] = []
+  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
+  const validIds = new Set(sponsors.map((item) => item.id))
+  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
+  const missingIds = sponsors.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
+  reorderSponsors([...uniqueIds, ...missingIds])
+  return c.redirect('/admin/sponsors')
+})
+
+const saveSponsorRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const id = field(body, 'id') || existingId || crypto.randomUUID()
+  const existing = sponsors.find((item) => item.id === existingId)
+  let logo = existing?.logo
+  try { logo = await saveUploadedImage(body.logo, 'sponsors') ?? logo } catch (error) { return c.text(error instanceof Error ? error.message : '画像を保存できませんでした。', 400) }
+  saveSponsor({ id, name: field(body, 'name'), tier: field(body, 'tier') as 'PLATINUM' | 'GOLD' | 'SUPPORT', description: field(body, 'description'), detail: field(body, 'detail'), url: field(body, 'url') || undefined, logo, sortOrder: Number(field(body, 'sortOrder')) || 0 })
+  return c.redirect(`/admin/sponsors/${id}`)
 }
 
 app.get('/admin/sessions', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SessionList csrf={session.csrf} />) })
@@ -180,6 +210,7 @@ app.get('/', (c) => c.html(
       <AiWerewolf />
       <SpeakersPreview />
       <AccessPreview />
+      <Sponsors />
       <FaqPreview />
       <section class="final-cta wrap"><div><div class="eyebrow">JOIN THE FESTIVAL</div><h2>文化祭で、<br />会いましょう。</h2></div><a class="pill primary" href={event.connpassUrl} target="_blank" rel="noreferrer">connpassで参加する ↗</a></section>
     </main>
@@ -190,6 +221,8 @@ app.get('/timetable', (c) => c.html(<Layout title="タイムテーブル" url={c
 app.get('/speakers', (c) => c.html(<Layout title="登壇者" url={c.req.url} active="speakers"><SpeakersPage /></Layout>))
 app.get('/access', (c) => c.html(<Layout title="アクセス" url={c.req.url} active="access"><AccessPage /></Layout>))
 app.get('/faq', (c) => c.html(<Layout title="よくある質問" url={c.req.url} active="faq"><FaqPage /></Layout>))
+app.get('/sponsors', (c) => c.html(<Layout title="協賛・スポンサー" url={c.req.url}><SponsorsPage /></Layout>))
+app.get('/sponsors/:id', (c) => c.html(<Layout title={sponsors.find((item) => item.id === c.req.param('id'))?.name ?? 'スポンサー'} url={c.req.url}><SponsorPage sponsorId={c.req.param('id')} /></Layout>))
 
 app.get('/sessions/:id', (c) => {
   const session = sessions.find((candidate) => candidate.id === c.req.param('id'))
