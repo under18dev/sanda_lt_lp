@@ -82,6 +82,19 @@ const App = () => {
   useEffect(() => {
     const reveal = () => document.querySelectorAll<HTMLElement>('.section').forEach((section) => section.classList.add('is-visible'))
     reveal()
+
+    const loader = document.querySelector<HTMLElement>('[data-page-loader]')
+    if (!loader) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      loader.remove()
+      return
+    }
+    const hideTimer = window.setTimeout(() => loader.classList.add('is-hidden'), 1050)
+    const removeTimer = window.setTimeout(() => loader.remove(), 1500)
+    return () => {
+      window.clearTimeout(hideTimer)
+      window.clearTimeout(removeTimer)
+    }
   }, [])
   return <><MobileMenu /><SessionDialog /></>
 }

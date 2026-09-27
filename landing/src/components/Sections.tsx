@@ -7,6 +7,11 @@ import { SessionCard, SpeakerCard, SpeakerList } from './Cards'
 
 export const Hero = () => (
   <section class="hero wrap">
+    <div class="page-loader" data-page-loader aria-hidden="true">
+      <div class="page-loader-signal"><span></span><span></span><span></span><span></span></div>
+      <div class="page-loader-label">SIGNAL RECEIVED</div>
+      <strong>知らない世界の話をしよう</strong>
+    </div>
     <div class="hero-decoration" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="eyebrow">SANDA GAKUEN CULTURAL FESTIVAL</div>
     <h1>知らない世界の<br /><em>話をしよう。</em></h1>
