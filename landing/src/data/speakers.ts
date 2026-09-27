@@ -20,6 +20,7 @@ export const speakers: Speaker[] = [
     role: 'Organizer / Web developer',
     category: 'web',
     bio: 'GDGなどでコミュニティ活動もしながら個人開発もしている高校生Webエンジニア。',
+    icon: 'https://event.ospn.jp/event_images/sessions/kotob_tanaka.png',
     online: false,
   },
   {
@@ -27,7 +28,9 @@ export const speakers: Speaker[] = [
     name: 'ムサシノ・F・エナガ',
     role: 'Novelist',
     category: 'culture',
-    bio: 'Web小説家。『俺だけデイリーミッションがあるダンジョン生活』『俺だけが魔法使い族の異世界』『島に取り残されて10年〜』『努力好きの天才錬金術師』などで書籍化している。',
+    icon: 'https://pbs.twimg.com/profile_images/1650172221611192321/47KhKjwQ_400x400.jpg',
+    bio: `Web小説家。
+    『俺だけデイリーミッションがあるダンジョン生活』『俺だけが魔法使い族の異世界』『島に取り残されて10年〜』『努力好きの天才錬金術師』などで書籍化している。`,
     online: true,
   },
   {
@@ -48,6 +51,7 @@ export const speakers: Speaker[] = [
     role: 'Misskey developer',
     category: 'sns',
     bio: 'Misskey開発者 / S高等学校3年生',
+    icon: 'https://media.discordapp.net/attachments/1547033201774567538/1553380916775231609/8sm1qr9.jpg?ex=6ab9b2f6&is=6ab86176&hm=0de17b53c1d9fcb5979420ce5f7cea9e06b99b593d1d733ec526aae975f6d12e&=&format=webp',
     online: false,
   },
   {
@@ -55,7 +59,9 @@ export const speakers: Speaker[] = [
     name: '大角知也',
     role: 'Medical',
     category: 'medical',
-    bio: '医療・ヘルスケア領域を中心に、医療データ・リアルワールドデータ（RWD）、生成AI・医療DX、Patient Support Program（PSP）、新規事業開発、人材育成、コミュニティ運営に取り組んでいます。',
+    icon: 'https://assets.st-note.com/production/uploads/images/142596036/profile_7244d2df5df27cb710d170ebbfb684f9.png?fit=bounds&format=jpeg&quality=85&width=330',
+    bio: `医療・ヘルスケア領域を中心に、医療データ・リアルワールドデータ（RWD）、生成AI・医療DX、Patient Support Program（PSP）、
+    新規事業開発、人材育成、コミュニティ運営に取り組んでいます。`,
     online: false,
   },
   {
@@ -63,9 +69,24 @@ export const speakers: Speaker[] = [
     name: 'たくてぃん',
     role: 'GDG organizer / Full-stack engineer',
     category: 'web',
-    bio: `神戸出身のエンジニア。専門学校でIT技術を学び、授業内外問わず Webサイト・モバイルアプリなどのフロントエンド、WebAPI バックエンド、サーバーなどのITインフラ など幅広く製作・構築を行ってきました。 また、ソフトウェア開発における設計やDevOpsの実践にも力を入れています。`,
+    icon: 'https://pbs.twimg.com/profile_images/2090471659371388929/W20XdOHj_400x400.jpg',
+    bio: `神戸出身のエンジニア。
+    専門学校でIT技術を学び、授業内外問わず Webサイト・モバイルアプリなどのフロントエンド、WebAPI バックエンド、サーバーなどのITインフラ など幅広く製作・構築を行ってきました。
+    また、ソフトウェア開発における設計やDevOpsの実践にも力を入れています。`,
     online: true,
   },
+  {
+    id: 'satoluxx',
+    name: 'なかむら さとる',
+    role: 'Google Developer Expert',
+    category: 'web',
+    icon: 'https://pbs.twimg.com/profile_images/775498643184898049/9gYodSez_400x400.jpg',
+    bio: `GCPとBigQueryとガンダムと旅行と姪っ子が大好きなおっさんエンジニアです。
+今は出前館のデータエンジニアリンググループでわちゃわちゃ。
+ Google Developers Expert(GCP)。
+バイクはアフリカツインとトライアンフ スラクストンを乗っております。`,
+    online: false,
+  }
 ]
 
 export const speakerCategories = [
