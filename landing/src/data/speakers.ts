@@ -1,3 +1,5 @@
+import { event } from './event'
+
 export type Speaker = {
   id: string
   name: string
@@ -12,7 +14,7 @@ export type Speaker = {
   online: boolean
 }
 
-const absoluteUrl = (path: string) => new URL(path, 'https://sglt.under18.dev').toString()
+const absoluteUrl = (path: string) => new URL(path, event.siteUrl).toString()
 
 export const speakers: Speaker[] = [
   {
