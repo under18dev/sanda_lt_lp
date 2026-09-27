@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { event, faqs, sessions, speakers, refreshStore, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
+import { event, faqs, sessions, speakers, refreshStore, reorderSessions, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
@@ -97,6 +97,18 @@ app.get('/admin/sessions/:id', (c) => { const session = adminGuard(c); if (sessi
 app.post('/admin/sessions/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, undefined) })
 app.post('/admin/sessions/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, c.req.param('id')) })
 app.post('/admin/sessions/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSession(c.req.param('id')); return c.redirect('/admin/sessions') })
+app.post('/admin/sessions/reorder', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  let orderedIds: string[] = []
+  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
+  const validIds = new Set(sessions.map((item) => item.id))
+  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
+  const missingIds = sessions.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
+  reorderSessions([...uniqueIds, ...missingIds])
+  return c.redirect('/admin/sessions')
+})
 
 const saveSessionRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
   const body = await c.req.parseBody()

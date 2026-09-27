@@ -129,6 +129,12 @@ export const saveSession = (session: Session) => {
 
 export const deleteSession = (id: string) => { db.query('DELETE FROM session_speakers WHERE session_id = ?').run(id); db.query('DELETE FROM sessions WHERE id = ?').run(id); refreshStore() }
 
+export const reorderSessions = (orderedIds: string[]) => {
+  const update = db.query('UPDATE sessions SET sort_order = ? WHERE id = ?')
+  orderedIds.forEach((id, index) => update.run(index, id))
+  refreshStore()
+}
+
 export const saveFaq = (faq: Faq) => {
   db.query(`INSERT INTO faqs (id, question, answer, sort_order) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET question=excluded.question, answer=excluded.answer, sort_order=excluded.sort_order`).run(faq.id, faq.question, faq.answer, faq.sortOrder)
   refreshStore()
