@@ -80,10 +80,11 @@ button { font: inherit; }
 .speaker-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
 .speaker-grid-large { grid-template-columns: repeat(3, 1fr); }
 .speaker-card { min-height: 205px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); }
-.speaker-card-link { display: flex; min-height: 100%; position: relative; gap: 15px; padding: 20px; text-decoration: none; }
+.speaker-card-link { display: flex; min-height: 100%; position: relative; gap: 15px; padding: 20px; overflow: hidden; text-decoration: none; }
 .speaker-avatar, .speaker-detail-avatar { display: grid; flex: 0 0 auto; place-items: center; width: 58px; height: 58px; border: 2px solid var(--line); border-radius: 50%; background: var(--yellow); font-size: 27px; font-weight: 900; }
 .speaker-avatar.has-image, .speaker-detail-avatar.has-image { overflow: hidden; padding: 0; background: var(--paper); }
-.speaker-avatar img, .speaker-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.speaker-avatar img { display: block; width: 58px; height: 58px; max-width: 58px; max-height: 58px; object-fit: cover; }
+.speaker-detail-avatar img { display: block; width: 150px; height: 150px; max-width: 150px; max-height: 150px; object-fit: cover; }
 .speaker-card:nth-child(2n) .speaker-avatar { background: var(--blue); } .speaker-card:nth-child(3n) .speaker-avatar { background: var(--red); }
 .speaker-card-body { padding-right: 20px; }
 .speaker-card h3 { margin: 26px 0 7px; font-size: 23px; line-height: 1; }
@@ -158,6 +159,7 @@ button { font: inherit; }
   .feature-main h3 { margin-top: 50px; }
   .speaker-detail { grid-template-columns: 1fr; gap: 25px; }
   .speaker-detail-avatar { width: 110px; height: 110px; font-size: 50px; }
+  .speaker-detail-avatar img { width: 110px; height: 110px; max-width: 110px; max-height: 110px; }
   .speaker-detail h2 { margin-top: 55px; font-size: 42px; }
   .final-cta { display: block; margin-bottom: 65px; }
   .final-cta .pill { margin-top: 28px; }
