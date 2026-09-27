@@ -37,7 +37,7 @@ export const TimetablePreview = () => (
 )
 
 export const SpeakersPreview = () => (
-  <section class="section wrap" id="speakers"><SectionHeading title="Speakers" description="話す人が違えば、見える世界も変わる。" /><SpeakerList ids={speakers.slice(0, 6).map((speaker) => speaker.id)} /><div class="section-link"><a class="pill" href="/speakers">登壇者一覧を見る →</a></div></section>
+  <section class="section wrap" id="speakers"><SectionHeading title="Speakers" description="話す人が違えば、見える世界も変わる。" /><SpeakerList ids={speakers.map((speaker) => speaker.id)} /><div class="section-link"><a class="pill" href="/speakers">登壇者一覧を見る →</a></div></section>
 )
 
 export const AiWerewolf = () => (
