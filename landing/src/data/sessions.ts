@@ -18,15 +18,15 @@ export const sessions: Session[] = [
   },
   {
     id: 'distributed-sns', date: '2026-11-02', start: '10:30', end: '10:40', title: '分散型SNSのすゝめ', speakerIds: ['macchatee'], category: 'talk', color: 'yellow',
-    summary: 'ネットワークの向こう側にある、もうひとつのSNS。', detail: '分散型SNSとは何か、Misskeyを作る側から見える世界を紹介します。',
+    summary: '内容は決まり次第更新します。', detail: '内容は決まり次第更新します。',
   },
   {
-    id: 'medical-world', date: '2026-11-02', start: '11:30', end: '11:40', title: '医療の現場から', speakerIds: ['osumi-tomoya'], category: 'talk', color: 'blue',
-    summary: '普段は見えにくい医療の世界を覗いてみる。', detail: '医療に関するテーマを予定しています。詳細はTBDです。',
+    id: 'medical-world', date: '2026-11-02', start: '11:30', end: '11:40', title: '「誰かの役に立つ」を掛け合わせる仕事', speakerIds: ['osumi-tomoya'], category: 'talk', color: 'blue',
+    summary: '内容は決まり次第更新します。', detail: '内容は決まり次第更新します。',
   },
   {
-    id: 'novel-world', date: '2026-11-02', start: '12:00', end: '12:10', title: '小説を書くということ', speakerIds: ['fantastic-novelist'], category: 'talk', color: 'green',
-    summary: '物語が生まれる場所を覗いてみる。', detail: '小説を書くこと、物語を作ることについて紹介します。',
+    id: 'novel-world', date: '2026-11-02', start: '12:00', end: '12:10', title: 'TBD', speakerIds: ['musashinofenaga'], category: 'talk', color: 'green',
+    summary: '内容は決まり次第更新します。', detail: '内容は決まり次第更新します。',
   },
   {
     id: 'ai-werewolf-play', date: '2026-11-02', start: '13:00', end: '14:00', title: 'AI人狼を遊ぶ', speakerIds: ['tanahiro2010'], category: 'special', color: 'red',
@@ -37,12 +37,12 @@ export const sessions: Session[] = [
     summary: 'PLAYの後に、HOW IT WAS MADEを見せます。', detail: 'ほとんどコードを書かず、生成AIにどこまでアプリを作らせられるか。その過程と内部の仕組みを紹介します。',
   },
   {
-    id: 'unknown-world', date: '2026-11-03', start: '11:00', end: '11:10', title: '知らない世界の話', speakerIds: ['kojima-yusuke'], category: 'talk', color: 'yellow',
-    summary: 'テーマTBD。新しい世界との出会い。', detail: '内容は決まり次第更新します。',
+    id: 'unknown-world', date: '2026-11-03', start: '11:00', end: '11:10', title: 'ITエンジニアとして生きていくために自分がやってきたノウハウをお伝えします', speakerIds: ['kojima-yusuke'], category: 'talk', color: 'yellow',
+    summary: '内容は決まり次第更新します。', detail: '内容は決まり次第更新します。',
   },
   {
-    id: 'web-world', date: '2026-11-03', start: '13:00', end: '13:10', title: 'Webの向こう側', speakerIds: ['taktin'], category: 'talk', color: 'blue',
-    summary: 'Webを作る人から見える、もうひとつの景色。', detail: 'Web開発とコミュニティに関するテーマを予定しています。',
+    id: 'web-world', date: '2026-11-03', start: '13:00', end: '13:10', title: 'インフラ（サーバー・ネットワーク）の何かを話します。', speakerIds: ['taktin'], category: 'talk', color: 'blue',
+    summary: '内容は決まり次第更新します。', detail: '内容は決まり次第更新します。',
   },
 ]
 
