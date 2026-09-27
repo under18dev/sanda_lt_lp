@@ -14,6 +14,11 @@ const escapeXml = (value: string) => value
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&apos;')
 
+const shortText = (value: string, maxChars: number) => {
+  const chars = [...value.replace(/\s+/g, ' ').trim()]
+  return chars.length > maxChars ? `${chars.slice(0, maxChars - 1).join('')}…` : chars.join('')
+}
+
 const colorFor = (index: number) => ['#2f80ed', '#ff5f50', '#39b86b', '#ffcc2f'][index % 4]
 
 const fallbackImage = (label: string, color: string) => {
@@ -55,11 +60,11 @@ while (images.length < 4) images.push(fallbackImage('TBD', colorFor(images.lengt
 const imageCard = (href: string, x: number, y: number, rotate: number) => `<g transform="translate(${x} ${y}) rotate(${rotate} 56 56)"><rect width="112" height="112" rx="22" fill="#fff" stroke="#203040" stroke-width="4"/><image href="${href}" x="8" y="8" width="96" height="96" preserveAspectRatio="xMidYMid slice" clip-path="url(#cardClip)"/></g>`
 const mainImage = `<image href="${images[3]}" x="890" y="174" width="250" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>`
 
-const title = escapeXml(event.title)
-const subtitle = escapeXml(event.description)
-const dateLabel = escapeXml(event.dateLabel.replace('（月）', ' (Mon)').replace('（火）', ' (Tue)'))
-const venue = escapeXml(event.venue)
-const mainSpeaker = escapeXml(selected[3]?.name ?? '発表者 TBD')
+const title = escapeXml(shortText(event.title, 28))
+const subtitle = escapeXml(shortText(event.description, 34))
+const dateLabel = escapeXml(shortText(event.dateLabel.replace('（月）', ' (Mon)').replace('（火）', ' (Tue)'), 40))
+const venue = escapeXml(shortText(event.venue, 18))
+const mainSpeaker = escapeXml(shortText(selected[3]?.name ?? '発表者 TBD', 10))
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
 <defs>
@@ -79,7 +84,7 @@ ${imageCard(images[1], 1018, 112, 7)}
 ${imageCard(images[2], 52, 462, 6)}
 <text x="190" y="58" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="26" font-weight="800" letter-spacing="2" fill="#203040">SANDA GAKUEN CULTURAL FESTIVAL</text>
 <rect x="190" y="82" width="430" height="38" rx="19" fill="#203040"/>
-<text x="405" y="108" text-anchor="middle" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="17" font-weight="700" fill="#fff">${subtitle.slice(0, 34)}</text>
+<text x="405" y="108" text-anchor="middle" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="17" font-weight="700" fill="#fff">${subtitle}</text>
 <rect x="190" y="150" width="170" height="32" rx="16" fill="#ff5f50"/>
 <text x="275" y="172" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="2" fill="#fff">EVENT / 2026</text>
 <text x="190" y="245" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="49" font-weight="900" fill="#203040">知らなかった世界に、</text>
@@ -88,7 +93,7 @@ ${imageCard(images[2], 52, 462, 6)}
 <text x="385" y="362" text-anchor="middle" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="21" font-weight="800" fill="#203040">10分のLT × 2日間</text>
 ${mainImage}
 <rect x="908" y="458" width="214" height="36" rx="18" fill="#203040"/>
-<text x="1015" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="1.5" fill="#fff">SPEAKER / ${mainSpeaker.slice(0, 10)}</text>
+<text x="1015" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="1.5" fill="#fff">SPEAKER / ${mainSpeaker}</text>
 <text x="190" y="518" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="20" font-weight="700" fill="#203040">${title}</text>
 <text x="190" y="552" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="19" font-weight="700" fill="#203040">${dateLabel}  /  ${venue}</text>
 <text x="190" y="589" font-family="Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="1.5" fill="#2f80ed">FREE ENTRY  ·  TALK  ·  CULTURE</text>

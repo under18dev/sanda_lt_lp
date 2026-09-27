@@ -138,6 +138,7 @@ button { font: inherit; }
 .detail-lead { max-width: 740px; margin: 0 0 30px; font-size: 22px; line-height: 1.6; font-weight: 800; }
 .detail-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 30px; }
 .detail-meta span { border: 2px solid var(--line); border-radius: 999px; padding: 9px 12px; background: var(--paper); font-size: 11px; font-weight: 900; }
+.detail-copy > .pill, .speaker-detail > div > .pill { margin-top: 32px; }
 .speaker-detail { display: grid; grid-template-columns: 180px 1fr; gap: 40px; }
 .speaker-detail-avatar { width: 150px; height: 150px; font-size: 70px; background: var(--yellow); }
 .speaker-detail h2 { margin: 80px 0 25px; font-size: 50px; letter-spacing: -.05em; }
