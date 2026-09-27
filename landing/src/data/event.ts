@@ -1,4 +1,5 @@
 export const event = {
+  siteUrl: 'https://sglt.under18.dev',
   title: '知らない世界の話をしよう',
   shortTitle: 'SANDA / LT 2026',
   description:
