@@ -55,7 +55,7 @@ export const speakers: Speaker[] = [
     name: '大角知也',
     role: 'Medical',
     category: 'medical',
-    bio: '',
+    bio: '医療・ヘルスケア領域を中心に、医療データ・リアルワールドデータ（RWD）、生成AI・医療DX、Patient Support Program（PSP）、新規事業開発、人材育成、コミュニティ運営に取り組んでいます。',
     online: false,
   },
   {
@@ -63,7 +63,7 @@ export const speakers: Speaker[] = [
     name: 'たくてぃん',
     role: 'GDG organizer / Full-stack engineer',
     category: 'web',
-    bio: 'GDGのオーガナイザーとして活動するフルスタックエンジニア。Webサービスとコミュニティづくりに取り組んでいます。',
+    bio: `神戸出身のエンジニア。専門学校でIT技術を学び、授業内外問わず Webサイト・モバイルアプリなどのフロントエンド、WebAPI バックエンド、サーバーなどのITインフラ など幅広く製作・構築を行ってきました。 また、ソフトウェア開発における設計やDevOpsの実践にも力を入れています。`,
     online: true,
   },
 ]
