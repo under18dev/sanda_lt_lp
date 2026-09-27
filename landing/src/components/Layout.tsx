@@ -1,7 +1,7 @@
 import type { Child } from 'hono/jsx'
 import { event, sessions, sponsors } from '../data/runtime'
 
-const assetVersion = '2026-09-27-21'
+const assetVersion = '2026-09-27-22'
 
 type LayoutProps = {
   title?: string
