@@ -54,4 +54,6 @@ Place speaker assets under `public/images/`, then edit the matching speaker in `
 
 `icon` is used in speaker cards and detail pages. `ogpImage` is used as the `og:image` and Twitter image for `/speakers/:id`. Paths are relative to `public/`, so rebuilding the site after editing the data automatically includes the new assets.
 
+Pages without a page-specific OGP use `public/assets/ogp.jpg` via `event.defaultOgpImage`. The top page continues to use the generated speaker-based OGP at `public/ogp/event.png`.
+
 The event top page OGP is generated from the same 1200x630 visual system as the speaker OGP generator. The selected speaker images are placed in the icon cards and the main speaker image. Change `event.ogpSpeakerIds` in `src/data/event.ts` to change the composition, then run `bun run generate:ogp` or `bun run build`.
