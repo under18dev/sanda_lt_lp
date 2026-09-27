@@ -112,6 +112,7 @@ export const speakers: Speaker[] = [
     handle: 'JavaLangRuntime',
     role: 'Engineer',
     category: 'web',
+    icon: 'https://pbs.twimg.com/profile_images/2099858796474691584/IYPxuDMo_400x400.jpg',
     bio: `締切駆動📷マン/SWE/XR研究者 
 立命館大学大学院M1・RM2C・クラスターメタ研RA・RCC・ CyberAgent・JINEN・888・
 CATechLounge・NxTEND戦略事業本部・TechSelect+メンター・運営STECH 

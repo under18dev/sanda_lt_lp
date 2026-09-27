@@ -9,6 +9,8 @@ import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero
 const app = new Hono()
 
 app.use('/assets/*', serveStatic({ root: './dist' }))
+app.use('/images/*', serveStatic({ root: './dist' }))
+app.use('/ogp/*', serveStatic({ root: './dist' }))
 
 app.get('/', (c) => c.html(
   <Layout ogImage={event.ogpImage} url={c.req.url}>
