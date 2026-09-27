@@ -3,6 +3,14 @@ import type { Session } from '../data/sessions'
 
 const speakerById = new Map(speakers.map((speaker) => [speaker.id, speaker]))
 
+const sessionDuration = (session: Session) => {
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
+  }
+  return toMinutes(session.end) - toMinutes(session.start)
+}
+
 export const SpeakerCard = ({ speakerId }: { speakerId: string }) => {
   const speaker = speakerById.get(speakerId)
   if (!speaker) return null
@@ -23,7 +31,7 @@ export const SpeakerCard = ({ speakerId }: { speakerId: string }) => {
   )
 }
 
-const SessionCardContent = ({ session }: { session: Session }) => <><div class="session-time"><time>{session.start}</time><span>—</span><time>{session.end}</time></div><div class="session-card-content"><div class="session-label">{session.category === 'special' ? 'SPECIAL' : session.category === 'break' ? 'BREAK' : '10 MIN TALK'}</div><h3>{session.title}</h3><p>{session.summary}</p><div class="session-speakers">{session.speakerIds.map((id) => speakerById.get(id)?.name).filter(Boolean).join(' / ')}</div></div>{session.category !== 'break' && <span class="card-arrow" aria-hidden="true">↗</span>}</>
+const SessionCardContent = ({ session }: { session: Session }) => <><div class="session-time"><time>{session.start}</time><span>—</span><time>{session.end}</time></div><div class="session-card-content"><div class="session-label">{session.category === 'special' ? 'SPECIAL' : session.category === 'break' ? 'BREAK' : `${sessionDuration(session)} MIN TALK`}</div><h3>{session.title}</h3><p>{session.summary}</p><div class="session-speakers">{session.speakerIds.map((id) => speakerById.get(id)?.name).filter(Boolean).join(' / ')}</div></div>{session.category !== 'break' && <span class="card-arrow" aria-hidden="true">↗</span>}</>
 
 export const SessionCard = ({ session, compact = false }: { session: Session; compact?: boolean }) => (
   <article class={`session-card session-card-${session.color} ${compact ? 'session-card-compact' : ''} ${session.category === 'break' ? 'session-card-break' : ''}`} data-session-card data-date={session.date} data-category={session.category}>
