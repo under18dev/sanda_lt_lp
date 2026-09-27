@@ -1,7 +1,7 @@
 import type { Child } from 'hono/jsx'
 import { event } from '../data/event'
 
-const assetVersion = '2026-09-27-07'
+const assetVersion = '2026-09-27-08'
 
 type LayoutProps = {
   title?: string
@@ -12,7 +12,7 @@ type LayoutProps = {
   active?: string
 }
 
-export const Layout = ({ title, description = event.description, ogImage, url, children, active }: LayoutProps) => {
+export const Layout = ({ title, description = event.description, ogImage = event.defaultOgpImage, url, children, active }: LayoutProps) => {
   const pageTitle = title ? `${title} | ${event.title}` : event.title
   const absoluteUrl = url ? new URL(url).toString() : undefined
   const absoluteOgImage = ogImage && absoluteUrl ? new URL(ogImage, absoluteUrl).toString() : ogImage
