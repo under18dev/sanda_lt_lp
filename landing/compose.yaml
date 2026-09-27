@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      PORT: 3000
+    networks:
+      - landing
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env}
+    depends_on:
+      - web
+    networks:
+      - landing
+
+networks:
+  landing:

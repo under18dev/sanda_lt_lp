@@ -1,0 +1,78 @@
+export type Speaker = {
+  id: string
+  name: string
+  handle?: string
+  role: string
+  category: string
+  bio: string
+  /** Relative URL under public/, for example /images/speakers/name.webp. */
+  icon?: string
+  /** Relative URL under public/, used for this speaker's detail-page OGP. */
+  ogpImage?: string
+  online: boolean
+}
+
+export const speakers: Speaker[] = [
+  {
+    id: 'tanahiro2010',
+    name: '田中博悠',
+    handle: 'tanahiro2010',
+    role: 'Organizer / Web developer',
+    category: 'web',
+    bio: 'GDGなどでコミュニティ活動もしながら個人開発もしている高校生Webエンジニア。',
+    online: false,
+  },
+  {
+    id: 'musashinofenaga',
+    name: 'ムサシノ・F・エナガ',
+    role: 'Novelist',
+    category: 'culture',
+    bio: 'Web小説家。『俺だけデイリーミッションがあるダンジョン生活』『俺だけが魔法使い族の異世界』『島に取り残されて10年〜』『努力好きの天才錬金術師』などで書籍化している。',
+    online: true,
+  },
+  {
+    id: 'kojima-yusuke',
+    name: '小島優介',
+    role: 'Speaker',
+    category: 'other',
+    bio: `30代後半から発信活動を始めて人生が楽しくなりました。
+「ハピネスチームビルディング」のテーマで発信。
+月刊誌「Software Design」で3年間連載。デブサミ2020関西ベストスピーカー賞1位。Microsoft Build 2022発表。デブサミ2026夏発表。
+弥生株式会社所属。発言は個人の見解です。`,
+    icon: 'https://pbs.twimg.com/profile_images/1356194926908776452/EqYLvsKJ_400x400.jpg',
+    online: true,
+  },
+  {
+    id: 'macchatee',
+    name: 'まっちゃてぃー',
+    role: 'Misskey developer',
+    category: 'sns',
+    bio: 'Misskey開発者 / S高等学校3年生',
+    online: false,
+  },
+  {
+    id: 'osumi-tomoya',
+    name: '大角知也',
+    role: 'Medical',
+    category: 'medical',
+    bio: '',
+    online: false,
+  },
+  {
+    id: 'taktin',
+    name: 'たくてぃん',
+    role: 'GDG organizer / Full-stack engineer',
+    category: 'web',
+    bio: 'GDGのオーガナイザーとして活動するフルスタックエンジニア。Webサービスとコミュニティづくりに取り組んでいます。',
+    online: true,
+  },
+]
+
+export const speakerCategories = [
+  { id: 'all', label: 'ALL' },
+  { id: 'web', label: 'WEB' },
+  { id: 'sns', label: 'SNS' },
+  { id: 'culture', label: 'CULTURE' },
+  { id: 'medical', label: 'MEDICAL' },
+  { id: 'other', label: 'OTHER' },
+]

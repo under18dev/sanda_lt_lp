@@ -1,0 +1,19 @@
+{
+  "name": "landing",
+  "scripts": {
+    "dev": "bun run scripts/dev.ts",
+    "build": "bun run generate:ogp && vite build",
+    "generate:ogp": "bun run scripts/generate-ogp.ts",
+    "start": "bun run src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.client.json"
+  },
+  "dependencies": {
+    "hono": "^4.13.9",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}
