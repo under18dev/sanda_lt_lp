@@ -39,6 +39,17 @@ export const SessionCard = ({ session, compact = false }: { session: Session; co
   </article>
 )
 
+export const TimetableRow = ({ session }: { session: Session }) => {
+  const duration = sessionDuration(session)
+  const label = session.category === 'special' ? 'SPECIAL' : session.category === 'break' ? 'BREAK' : `${duration} MIN TALK`
+  const speakerNames = session.speakerIds.map((id) => speakerById.get(id)?.name).filter(Boolean).join(' / ')
+  const content = <><div class="timetable-row-main"><div class="session-label">{label}</div><h3>{session.title}</h3><p>{session.summary}</p></div><div class="timetable-row-meta"><strong>{speakerNames || '―'}</strong>{session.category !== 'break' && <span aria-hidden="true">↗</span>}</div></>
+  return <article class={`timetable-row timetable-row-${session.color} ${session.category === 'break' ? 'timetable-row-break' : ''}`} data-session-card data-date={session.date} data-category={session.category}>
+    <div class="timetable-row-time"><time>{session.start}</time><span>{session.end}</span></div>
+    {session.category === 'break' ? <div class="timetable-row-content">{content}</div> : <a class="timetable-row-content" href={`/sessions/${session.id}`} data-session-id={session.id}>{content}</a>}
+  </article>
+}
+
 export const SpeakerList = ({ ids }: { ids: string[] }) => (
   <div class="speaker-grid">{ids.map((id) => <SpeakerCard key={id} speakerId={id} />)}</div>
 )

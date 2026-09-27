@@ -3,7 +3,7 @@ import { faqs } from '../data/faq'
 import { speakers } from '../data/speakers'
 import { sessionDates, sessions } from '../data/sessions'
 import { SectionHeading } from './Layout'
-import { SessionCard, SpeakerCard, SpeakerList } from './Cards'
+import { SessionCard, SpeakerCard, SpeakerList, TimetableRow } from './Cards'
 
 export const Hero = () => (
   <section class="hero wrap">
@@ -62,7 +62,7 @@ export const FaqPreview = () => (
 )
 
 export const TimetablePage = () => (
-  <main><PageDataIntro eyebrow="PROGRAM / TIMETABLE" title="Timetable" description="日付とカテゴリから、気になる世界を探せます。" /><section class="section wrap"><div class="client-island" id="session-controls" data-session-controls data-dates={JSON.stringify(sessionDates)}></div><div class="detail-grid">{sessions.map((session) => <SessionCard key={session.id} session={session} />)}</div></section></main>
+  <main><PageDataIntro eyebrow="PROGRAM / TIMETABLE" title="Timetable" description="時間の流れに沿って、気になる世界を探せます。日付とカテゴリで絞り込めます。" /><section class="section wrap"><div class="client-island" id="session-controls" data-session-controls data-dates={JSON.stringify(sessionDates)}></div><div class="timetable" role="list" aria-label="タイムテーブル">{sessions.map((session) => <TimetableRow key={session.id} session={session} />)}</div></section></main>
 )
 
 export const SpeakersPage = () => (
