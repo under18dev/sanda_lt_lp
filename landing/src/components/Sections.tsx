@@ -1,5 +1,4 @@
-import { event, sessionDates, sessions, speakers, speakerCategories } from '../data/runtime'
-import { faqs } from '../data/faq'
+import { event, faqs, sessionDates, sessions, speakers, speakerCategories } from '../data/runtime'
 import { SectionHeading } from './Layout'
 import { SessionCard, SpeakerCard, SpeakerList, TimetableRow } from './Cards'
 

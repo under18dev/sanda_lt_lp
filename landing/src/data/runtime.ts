@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs'
 import { event as seedEvent } from './event'
 import { speakers as seedSpeakers, type Speaker } from './speakers'
 import { sessions as seedSessions, type Session } from './sessions'
+import { faqs as seedFaqs } from './faq'
 
 export type EventRecord = {
   siteUrl: string
@@ -25,6 +26,13 @@ export type EventRecord = {
   ogpSpeakerIds: string[]
 }
 
+export type Faq = {
+  id: string
+  question: string
+  answer: string
+  sortOrder: number
+}
+
 const dataDir = process.env.DATA_DIR ?? './data'
 const databasePath = process.env.DATABASE_PATH ?? `${dataDir}/event.db`
 mkdirSync(dataDir, { recursive: true })
@@ -33,6 +41,7 @@ export const db = new Database(databasePath, { create: true })
 export let event: EventRecord = structuredClone(seedEvent) as unknown as EventRecord
 export let speakers: Speaker[] = structuredClone(seedSpeakers)
 export let sessions: Session[] = structuredClone(seedSessions)
+export let faqs: Faq[] = structuredClone(seedFaqs).map((faq, index) => ({ ...faq, sortOrder: index }))
 export let sessionDates = structuredClone([
   { id: '2026-11-02' as const, label: '11.02 MON' },
   { id: '2026-11-03' as const, label: '11.03 TUE' },
@@ -53,21 +62,28 @@ const ensureSchema = () => {
   db.run(`CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, date TEXT NOT NULL, start TEXT NOT NULL, end TEXT NOT NULL, title TEXT NOT NULL, category TEXT NOT NULL, color TEXT NOT NULL, summary TEXT NOT NULL, detail TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
   db.run(`CREATE TABLE IF NOT EXISTS session_speakers (session_id TEXT NOT NULL, speaker_id TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (session_id, speaker_id))`)
   db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (id TEXT PRIMARY KEY, csrf TEXT NOT NULL, expires_at INTEGER NOT NULL)`)
+  db.run(`CREATE TABLE IF NOT EXISTS faqs (id TEXT PRIMARY KEY, question TEXT NOT NULL, answer TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
 }
 
 const seed = () => {
   const existing = db.query('SELECT id FROM event_settings WHERE id = 1').get()
-  if (existing) return
-  const now = new Date().toISOString()
-  db.query('INSERT INTO event_settings (id, data, updated_at) VALUES (1, ?, ?)').run(JSON.stringify(seedEvent), now)
-  const insertSpeaker = db.query('INSERT INTO speakers (id, name, handle, role, category, bio, icon, ogp_image, online, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-  seedSpeakers.forEach((speaker, index) => insertSpeaker.run(speaker.id, speaker.name, speaker.handle ?? null, speaker.role, speaker.category, speaker.bio, speaker.icon ?? null, speaker.ogpImage ?? null, speaker.online ? 1 : 0, index))
-  const insertSession = db.query('INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-  const insertRelation = db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)')
-  seedSessions.forEach((session, index) => {
-    insertSession.run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, index)
-    session.speakerIds.forEach((speakerId, speakerIndex) => insertRelation.run(session.id, speakerId, speakerIndex))
-  })
+  if (!existing) {
+    const now = new Date().toISOString()
+    db.query('INSERT INTO event_settings (id, data, updated_at) VALUES (1, ?, ?)').run(JSON.stringify(seedEvent), now)
+    const insertSpeaker = db.query('INSERT INTO speakers (id, name, handle, role, category, bio, icon, ogp_image, online, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    seedSpeakers.forEach((speaker, index) => insertSpeaker.run(speaker.id, speaker.name, speaker.handle ?? null, speaker.role, speaker.category, speaker.bio, speaker.icon ?? null, speaker.ogpImage ?? null, speaker.online ? 1 : 0, index))
+    const insertSession = db.query('INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    const insertRelation = db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)')
+    seedSessions.forEach((session, index) => {
+      insertSession.run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, index)
+      session.speakerIds.forEach((speakerId, speakerIndex) => insertRelation.run(session.id, speakerId, speakerIndex))
+    })
+  }
+  const faqCount = db.query('SELECT COUNT(*) AS count FROM faqs').get() as { count: number }
+  if (faqCount.count === 0) {
+    const insertFaq = db.query('INSERT INTO faqs (id, question, answer, sort_order) VALUES (?, ?, ?, ?)')
+    seedFaqs.forEach((faq, index) => insertFaq.run(faq.id, faq.question, faq.answer, index))
+  }
 }
 
 export const refreshStore = () => {
@@ -75,13 +91,15 @@ export const refreshStore = () => {
   if (eventRow) event = JSON.parse(eventRow.data) as EventRecord
   const speakerRows = db.query('SELECT id, name, handle, role, category, bio, icon, ogp_image, online FROM speakers WHERE published = 1 ORDER BY sort_order, id').all() as Array<Record<string, unknown>>
   speakers = speakerRows.map((row) => ({ id: String(row.id), name: String(row.name), handle: row.handle ? String(row.handle) : undefined, role: String(row.role), category: String(row.category), bio: String(row.bio), icon: row.icon ? String(row.icon) : undefined, ogpImage: row.ogp_image ? String(row.ogp_image) : undefined, online: Boolean(row.online) }))
-  const sessionRows = db.query('SELECT id, date, start, end, title, category, color, summary, detail FROM sessions WHERE published = 1 ORDER BY date, start, sort_order, id').all() as Array<Record<string, unknown>>
-  sessions = sessionRows.map((row) => ({ id: String(row.id), date: String(row.date) as Session['date'], start: String(row.start), end: String(row.end), title: String(row.title), category: String(row.category) as Session['category'], color: String(row.color) as Session['color'], summary: String(row.summary), detail: String(row.detail), speakerIds: (db.query('SELECT speaker_id FROM session_speakers WHERE session_id = ? ORDER BY sort_order').all(String(row.id)) as Array<{ speaker_id: string }>).map((item) => item.speaker_id) }))
+  const sessionRows = db.query('SELECT id, date, start, end, title, category, color, summary, detail, sort_order FROM sessions WHERE published = 1 ORDER BY date, sort_order, start, id').all() as Array<Record<string, unknown>>
+  sessions = sessionRows.map((row) => ({ id: String(row.id), date: String(row.date) as Session['date'], start: String(row.start), end: String(row.end), title: String(row.title), category: String(row.category) as Session['category'], color: String(row.color) as Session['color'], summary: String(row.summary), detail: String(row.detail), sortOrder: Number(row.sort_order), speakerIds: (db.query('SELECT speaker_id FROM session_speakers WHERE session_id = ? ORDER BY sort_order').all(String(row.id)) as Array<{ speaker_id: string }>).map((item) => item.speaker_id) }))
   sessionDates = event.dates.map((item, index) => {
     const match = item.date.match(/(\d+)年(\d+)月(\d+)日（(.)）/)
     const weekday = match ? ({ 月: 'MON', 火: 'TUE', 水: 'WED', 木: 'THU', 金: 'FRI', 土: 'SAT', 日: 'SUN' } as Record<string, string>)[match[4]] : ''
     return { id: index === 0 ? '2026-11-02' as const : '2026-11-03' as const, label: match ? `${match[2].padStart(2, '0')}.${match[3].padStart(2, '0')} ${weekday}` : item.date }
   })
+  const faqRows = db.query('SELECT id, question, answer, sort_order FROM faqs WHERE published = 1 ORDER BY sort_order, id').all() as Array<Record<string, unknown>>
+  faqs = faqRows.map((row) => ({ id: String(row.id), question: String(row.question), answer: String(row.answer), sortOrder: Number(row.sort_order) }))
 }
 
 ensureSchema()
@@ -102,10 +120,18 @@ export const saveSpeaker = (speaker: Speaker) => {
 export const deleteSpeaker = (id: string) => { db.query('DELETE FROM speakers WHERE id = ?').run(id); refreshStore() }
 
 export const saveSession = (session: Session) => {
-  db.query(`INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET date=excluded.date, start=excluded.start, end=excluded.end, title=excluded.title, category=excluded.category, color=excluded.color, summary=excluded.summary, detail=excluded.detail`).run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, sessions.findIndex((item) => item.id === session.id))
+  const sortOrder = session.sortOrder ?? sessions.findIndex((item) => item.id === session.id)
+  db.query(`INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET date=excluded.date, start=excluded.start, end=excluded.end, title=excluded.title, category=excluded.category, color=excluded.color, summary=excluded.summary, detail=excluded.detail, sort_order=excluded.sort_order`).run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, sortOrder)
   db.query('DELETE FROM session_speakers WHERE session_id = ?').run(session.id)
   session.speakerIds.forEach((speakerId, index) => db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)').run(session.id, speakerId, index))
   refreshStore()
 }
 
 export const deleteSession = (id: string) => { db.query('DELETE FROM session_speakers WHERE session_id = ?').run(id); db.query('DELETE FROM sessions WHERE id = ?').run(id); refreshStore() }
+
+export const saveFaq = (faq: Faq) => {
+  db.query(`INSERT INTO faqs (id, question, answer, sort_order) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET question=excluded.question, answer=excluded.answer, sort_order=excluded.sort_order`).run(faq.id, faq.question, faq.answer, faq.sortOrder)
+  refreshStore()
+}
+
+export const deleteFaq = (id: string) => { db.query('DELETE FROM faqs WHERE id = ?').run(id); refreshStore() }

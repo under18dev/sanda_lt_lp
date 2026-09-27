@@ -9,6 +9,7 @@ export type Session = {
   color: 'white' | 'yellow' | 'blue' | 'green' | 'red'
   summary: string
   detail: string
+  sortOrder?: number
 }
 
 const tbd = (id: string, start: string, end: string, color: Session['color']): Session => ({

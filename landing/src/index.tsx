@@ -1,10 +1,10 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { event, sessions, speakers, refreshStore, saveEvent, saveSession, saveSpeaker, deleteSession, deleteSpeaker } from './data/runtime'
+import { event, faqs, sessions, speakers, refreshStore, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
-import { Dashboard, EventForm, Login, SessionForm, SessionList, SpeakerForm, SpeakerList } from './admin/views'
+import { Dashboard, EventForm, FaqForm, FaqList, Login, SessionForm, SessionList, SpeakerForm, SpeakerList } from './admin/views'
 import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -102,8 +102,23 @@ const saveSessionRequest = async (c: Parameters<typeof requireAdmin>[0], existin
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
   const id = field(body, 'id') || existingId || crypto.randomUUID()
-  saveSession({ id, date: field(body, 'date') as '2026-11-02' | '2026-11-03', start: field(body, 'start'), end: field(body, 'end'), title: field(body, 'title'), category: field(body, 'category') as 'talk' | 'special' | 'break', color: field(body, 'color') as 'white' | 'yellow' | 'blue' | 'green' | 'red', summary: field(body, 'summary'), detail: field(body, 'detail'), speakerIds: fieldList(body, 'speakerIds') })
+  saveSession({ id, date: field(body, 'date') as '2026-11-02' | '2026-11-03', start: field(body, 'start'), end: field(body, 'end'), title: field(body, 'title'), category: field(body, 'category') as 'talk' | 'special' | 'break', color: field(body, 'color') as 'white' | 'yellow' | 'blue' | 'green' | 'red', summary: field(body, 'summary'), detail: field(body, 'detail'), sortOrder: Number(field(body, 'sortOrder')) || 0, speakerIds: fieldList(body, 'speakerIds') })
   return c.redirect(`/admin/sessions/${id}`)
+}
+
+app.get('/admin/faqs', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<FaqList csrf={session.csrf} />) })
+app.get('/admin/faqs/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<FaqForm csrf={session.csrf} />) })
+app.get('/admin/faqs/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const faq = faqs.find((item) => item.id === c.req.param('id')); if (!faq) return c.notFound(); return c.html(<FaqForm csrf={session.csrf} faq={faq} />) })
+app.post('/admin/faqs/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, undefined) })
+app.post('/admin/faqs/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, c.req.param('id')) })
+app.post('/admin/faqs/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteFaq(c.req.param('id')); return c.redirect('/admin/faqs') })
+
+const saveFaqRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const id = field(body, 'id') || existingId || crypto.randomUUID()
+  saveFaq({ id, question: field(body, 'question'), answer: field(body, 'answer'), sortOrder: Number(field(body, 'sortOrder')) || 0 })
+  return c.redirect(`/admin/faqs/${id}`)
 }
 
 app.get('/ogp/speakers/:id', async (c) => {
