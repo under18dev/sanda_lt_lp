@@ -119,6 +119,12 @@ export const saveSpeaker = (speaker: Speaker) => {
 
 export const deleteSpeaker = (id: string) => { db.query('DELETE FROM speakers WHERE id = ?').run(id); refreshStore() }
 
+export const reorderSpeakers = (orderedIds: string[]) => {
+  const update = db.query('UPDATE speakers SET sort_order = ? WHERE id = ?')
+  orderedIds.forEach((id, index) => update.run(index, id))
+  refreshStore()
+}
+
 export const saveSession = (session: Session) => {
   const sortOrder = session.sortOrder ?? sessions.findIndex((item) => item.id === session.id)
   db.query(`INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET date=excluded.date, start=excluded.start, end=excluded.end, title=excluded.title, category=excluded.category, color=excluded.color, summary=excluded.summary, detail=excluded.detail, sort_order=excluded.sort_order`).run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, sortOrder)
@@ -141,3 +147,9 @@ export const saveFaq = (faq: Faq) => {
 }
 
 export const deleteFaq = (id: string) => { db.query('DELETE FROM faqs WHERE id = ?').run(id); refreshStore() }
+
+export const reorderFaqs = (orderedIds: string[]) => {
+  const update = db.query('UPDATE faqs SET sort_order = ? WHERE id = ?')
+  orderedIds.forEach((id, index) => update.run(index, id))
+  refreshStore()
+}

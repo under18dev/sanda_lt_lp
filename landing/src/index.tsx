@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { event, faqs, sessions, speakers, refreshStore, reorderSessions, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
+import { event, faqs, sessions, speakers, refreshStore, reorderFaqs, reorderSessions, reorderSpeakers, saveEvent, saveFaq, saveSession, saveSpeaker, deleteFaq, deleteSession, deleteSpeaker } from './data/runtime'
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
@@ -79,6 +79,18 @@ app.get('/admin/speakers/:id', (c) => { const session = adminGuard(c); if (sessi
 app.post('/admin/speakers/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, undefined, session.csrf) })
 app.post('/admin/speakers/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, c.req.param('id'), session.csrf) })
 app.post('/admin/speakers/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSpeaker(c.req.param('id')); return c.redirect('/admin/speakers') })
+app.post('/admin/speakers/reorder', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  let orderedIds: string[] = []
+  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
+  const validIds = new Set(speakers.map((item) => item.id))
+  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
+  const missingIds = speakers.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
+  reorderSpeakers([...uniqueIds, ...missingIds])
+  return c.redirect('/admin/speakers')
+})
 
 const saveSpeakerRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined, csrf: string) => {
   const body = await c.req.parseBody()
@@ -124,6 +136,18 @@ app.get('/admin/faqs/:id', (c) => { const session = adminGuard(c); if (session i
 app.post('/admin/faqs/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, undefined) })
 app.post('/admin/faqs/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, c.req.param('id')) })
 app.post('/admin/faqs/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteFaq(c.req.param('id')); return c.redirect('/admin/faqs') })
+app.post('/admin/faqs/reorder', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  let orderedIds: string[] = []
+  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
+  const validIds = new Set(faqs.map((item) => item.id))
+  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
+  const missingIds = faqs.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
+  reorderFaqs([...uniqueIds, ...missingIds])
+  return c.redirect('/admin/faqs')
+})
 
 const saveFaqRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
   const body = await c.req.parseBody()
