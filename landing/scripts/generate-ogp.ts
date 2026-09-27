@@ -27,7 +27,11 @@ const imageDataUri = async (path: string | undefined, label: string, color: stri
   try {
     let buffer: Buffer
     let remoteMime: string | undefined
-    if (/^https?:\/\//.test(path)) {
+    const parsedPath = new URL(path, 'https://local.invalid')
+    const localPath = parsedPath.origin === 'https://sglt.under18.dev' ? parsedPath.pathname : undefined
+    if (localPath) {
+      buffer = await readFile(join(publicDir, localPath.replace(/^\//, '')))
+    } else if (/^https?:\/\//.test(path)) {
       const response = await fetch(path)
       if (!response.ok) throw new Error(`Image request failed: ${response.status}`)
       buffer = Buffer.from(await response.arrayBuffer())
