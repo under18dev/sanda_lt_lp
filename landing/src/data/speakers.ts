@@ -129,7 +129,9 @@ GoCon TSKaigi kyoto.go biwako.go・りえ高生`,
     handle: 'unischool_tm',
     role: 'Video editor',
     category: 'culture',
-    bio: '動画編集者。動画を見る人を離脱させない工夫を研究し、映像制作に取り組んでいます。',
+    bio: `高校生の動画編集者。
+WordPressで一から組み立て、そこからSNSでの発信に領域を広げ、次第に映像作成へ。
+今では動画編集を軸に、企画から編集までを一人でこなすクリエイターとして活動している。`,
     icon: absoluteUrl('/images/speakers/tm.jpg'),
     online: false,
   }
