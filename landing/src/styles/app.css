@@ -144,9 +144,14 @@ button { font: inherit; }
 .sponsor-tier-yellow { background: rgb(240 187 67 / 22%); }
 .sponsor-tier-green { background: rgb(102 162 115 / 18%); }
 .sponsor-detail { display: grid; grid-template-columns: minmax(240px, .7fr) 1fr; gap: 48px; }
-.sponsor-detail-brand { min-height: 280px; display: grid; place-items: center; padding: 32px; border: 2px solid var(--line); }
-.sponsor-detail-brand img { display: block; width: min(100%, 360px); max-height: 180px; object-fit: contain; }
+.sponsor-detail-brand { min-height: 280px; display: grid; place-items: center; padding: 32px; border: 2px solid var(--line); background: var(--paper); }
+.sponsor-detail-brand-platinum { border-top: 14px solid var(--blue); }
+.sponsor-detail-brand-gold { border-top: 14px solid var(--yellow); }
+.sponsor-detail-brand-support { border-top: 14px solid var(--green); }
+.sponsor-detail-brand img { display: block; width: min(100%, 430px); max-height: 220px; object-fit: contain; }
 .sponsor-detail-brand strong { font-size: clamp(28px, 5vw, 58px); text-align: center; }
+.sponsor-detail-copy { max-width: 680px; font-size: 19px; line-height: 1.85; font-weight: 700; }
+.sponsor-detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 .sponsor-modal-logo { display: block; width: min(100%, 280px); height: 90px; margin-top: 22px; object-fit: contain; object-position: left center; }
 .sponsor-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 .faq-list { border-top: 2px solid var(--line); }
