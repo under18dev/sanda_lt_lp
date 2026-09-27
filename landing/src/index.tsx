@@ -18,6 +18,17 @@ const dataDir = process.env.DATA_DIR ?? './data'
 const field = (body: Record<string, unknown>, name: string) => typeof body[name] === 'string' ? body[name] as string : ''
 const fieldList = (body: Record<string, unknown>, name: string) => { const value = body[name]; return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : typeof value === 'string' ? [value] : [] }
 const adminGuard = (c: Parameters<typeof requireAdmin>[0]) => requireAdmin(c)
+const reorderRequest = async (c: Parameters<typeof requireAdmin>[0], currentIds: string[], save: (ids: string[]) => void, redirectPath: string) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  let orderedIds: string[]
+  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
+  const validIds = new Set(currentIds)
+  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
+  save([...uniqueIds, ...currentIds.filter((id) => !uniqueIds.includes(id))])
+  return c.redirect(redirectPath)
+}
 
 const saveUploadedImage = async (file: unknown, area: 'speakers' | 'event' | 'sponsors') => {
   if (!(file instanceof File) || file.size === 0) return undefined
@@ -80,21 +91,9 @@ app.get('/admin/speakers', (c) => { const session = adminGuard(c); if (session i
 app.get('/admin/speakers/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SpeakerForm csrf={session.csrf} />) })
 app.get('/admin/speakers/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const speaker = speakers.find((item) => item.id === c.req.param('id')); if (!speaker) return c.notFound(); return c.html(<SpeakerForm csrf={session.csrf} speaker={speaker} />) })
 app.post('/admin/speakers/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, undefined, session.csrf) })
+app.post('/admin/speakers/reorder', async (c) => reorderRequest(c, speakers.map((item) => item.id), reorderSpeakers, '/admin/speakers'))
 app.post('/admin/speakers/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, c.req.param('id'), session.csrf) })
 app.post('/admin/speakers/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSpeaker(c.req.param('id')); return c.redirect('/admin/speakers') })
-app.post('/admin/speakers/reorder', async (c) => {
-  const session = adminGuard(c); if (session instanceof Response) return session
-  const body = await c.req.parseBody()
-  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
-  let orderedIds: string[] = []
-  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
-  const validIds = new Set(speakers.map((item) => item.id))
-  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
-  const missingIds = speakers.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
-  reorderSpeakers([...uniqueIds, ...missingIds])
-  return c.redirect('/admin/speakers')
-})
-
 const saveSpeakerRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined, csrf: string) => {
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
@@ -110,21 +109,9 @@ app.get('/admin/sponsors', (c) => { const session = adminGuard(c); if (session i
 app.get('/admin/sponsors/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SponsorForm csrf={session.csrf} />) })
 app.get('/admin/sponsors/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const sponsor = sponsors.find((item) => item.id === c.req.param('id')); if (!sponsor) return c.notFound(); return c.html(<SponsorForm csrf={session.csrf} sponsor={sponsor} />) })
 app.post('/admin/sponsors/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSponsorRequest(c, undefined) })
+app.post('/admin/sponsors/reorder', async (c) => reorderRequest(c, sponsors.map((item) => item.id), reorderSponsors, '/admin/sponsors'))
 app.post('/admin/sponsors/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSponsorRequest(c, c.req.param('id')) })
 app.post('/admin/sponsors/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSponsor(c.req.param('id')); return c.redirect('/admin/sponsors') })
-app.post('/admin/sponsors/reorder', async (c) => {
-  const session = adminGuard(c); if (session instanceof Response) return session
-  const body = await c.req.parseBody()
-  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
-  let orderedIds: string[] = []
-  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
-  const validIds = new Set(sponsors.map((item) => item.id))
-  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
-  const missingIds = sponsors.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
-  reorderSponsors([...uniqueIds, ...missingIds])
-  return c.redirect('/admin/sponsors')
-})
-
 const saveSponsorRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
@@ -140,21 +127,9 @@ app.get('/admin/sessions', (c) => { const session = adminGuard(c); if (session i
 app.get('/admin/sessions/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SessionForm csrf={session.csrf} />) })
 app.get('/admin/sessions/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const item = sessions.find((candidate) => candidate.id === c.req.param('id')); if (!item) return c.notFound(); return c.html(<SessionForm csrf={session.csrf} session={item} />) })
 app.post('/admin/sessions/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, undefined) })
+app.post('/admin/sessions/reorder', async (c) => reorderRequest(c, sessions.map((item) => item.id), reorderSessions, '/admin/sessions'))
 app.post('/admin/sessions/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, c.req.param('id')) })
 app.post('/admin/sessions/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSession(c.req.param('id')); return c.redirect('/admin/sessions') })
-app.post('/admin/sessions/reorder', async (c) => {
-  const session = adminGuard(c); if (session instanceof Response) return session
-  const body = await c.req.parseBody()
-  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
-  let orderedIds: string[] = []
-  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
-  const validIds = new Set(sessions.map((item) => item.id))
-  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
-  const missingIds = sessions.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
-  reorderSessions([...uniqueIds, ...missingIds])
-  return c.redirect('/admin/sessions')
-})
-
 const saveSessionRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
@@ -167,21 +142,9 @@ app.get('/admin/faqs', (c) => { const session = adminGuard(c); if (session insta
 app.get('/admin/faqs/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<FaqForm csrf={session.csrf} />) })
 app.get('/admin/faqs/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const faq = faqs.find((item) => item.id === c.req.param('id')); if (!faq) return c.notFound(); return c.html(<FaqForm csrf={session.csrf} faq={faq} />) })
 app.post('/admin/faqs/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, undefined) })
+app.post('/admin/faqs/reorder', async (c) => reorderRequest(c, faqs.map((item) => item.id), reorderFaqs, '/admin/faqs'))
 app.post('/admin/faqs/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveFaqRequest(c, c.req.param('id')) })
 app.post('/admin/faqs/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteFaq(c.req.param('id')); return c.redirect('/admin/faqs') })
-app.post('/admin/faqs/reorder', async (c) => {
-  const session = adminGuard(c); if (session instanceof Response) return session
-  const body = await c.req.parseBody()
-  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
-  let orderedIds: string[] = []
-  try { orderedIds = JSON.parse(field(body, 'order')) as string[] } catch { return c.text('Invalid order', 400) }
-  const validIds = new Set(faqs.map((item) => item.id))
-  const uniqueIds = orderedIds.filter((id, index) => typeof id === 'string' && validIds.has(id) && orderedIds.indexOf(id) === index)
-  const missingIds = faqs.map((item) => item.id).filter((id) => !uniqueIds.includes(id))
-  reorderFaqs([...uniqueIds, ...missingIds])
-  return c.redirect('/admin/faqs')
-})
-
 const saveFaqRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
