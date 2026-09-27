@@ -55,7 +55,7 @@ export const speakers: Speaker[] = [
     role: 'Misskey developer',
     category: 'sns',
     bio: 'Misskey開発者 / S高等学校3年生',
-    icon: absoluteUrl('/images/speakers/macchatee.webp'),
+    icon: absoluteUrl('/images/speakers/macchatee.png'),
     online: false,
   },
   {
