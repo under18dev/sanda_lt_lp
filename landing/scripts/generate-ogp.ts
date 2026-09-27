@@ -53,23 +53,25 @@ const imageDataUri = async (path: string | undefined, label: string, color: stri
 }
 
 const speakersForOgp = event.ogpSpeakerIds.map((id) => speakers.find((speaker) => speaker.id === id)).filter((speaker): speaker is (typeof speakers)[number] => Boolean(speaker))
-const selected = [...speakersForOgp, ...speakers].filter((speaker, index, all) => all.findIndex((candidate) => candidate.id === speaker.id) === index).slice(0, 4)
+const selected = [...speakersForOgp, ...speakers].filter((speaker, index, all) => all.findIndex((candidate) => candidate.id === speaker.id) === index)
 const images = await Promise.all(selected.map((speaker, index) => imageDataUri(speaker.icon, speaker.name, colorFor(index))))
-while (images.length < 4) images.push(fallbackImage('TBD', colorFor(images.length)))
 
-const imageCard = (href: string, x: number, y: number, rotate: number) => `<g transform="translate(${x} ${y}) rotate(${rotate} 56 56)"><rect width="112" height="112" rx="22" fill="#fff" stroke="#203040" stroke-width="4"/><image href="${href}" x="8" y="8" width="96" height="96" preserveAspectRatio="xMidYMid slice" clip-path="url(#cardClip)"/></g>`
-const mainImage = `<image href="${images[3]}" x="890" y="174" width="250" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>`
+const speakerTiles = selected.map((speaker, index) => {
+  const column = index % 3
+  const row = Math.floor(index / 3)
+  const x = 875 + column * 78
+  const y = 152 + row * 78
+  return `<g transform="translate(${x} ${y})"><rect width="70" height="70" rx="15" fill="#fff" stroke="#203040" stroke-width="3"/><image href="${images[index]}" x="3" y="3" width="64" height="64" preserveAspectRatio="xMidYMid slice" clip-path="url(#tileClip)"/></g>`
+}).join('')
 
 const title = escapeXml(shortText(event.title, 28))
 const subtitle = escapeXml(shortText(event.description, 34))
 const dateLabel = escapeXml(shortText(event.dateLabel.replace('（月）', ' (Mon)').replace('（火）', ' (Tue)'), 40))
 const venue = escapeXml(shortText(event.venue, 18))
-const mainSpeaker = escapeXml(shortText(selected[3]?.name ?? '発表者 TBD', 10))
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
 <defs>
-  <clipPath id="cardClip"><rect x="8" y="8" width="96" height="96" rx="16"/></clipPath>
-  <clipPath id="photoClip"><rect x="890" y="174" width="250" height="320" rx="34"/></clipPath>
+  <clipPath id="tileClip"><rect x="3" y="3" width="64" height="64" rx="12"/></clipPath>
   <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.2" fill="#203040" opacity=".28"/></pattern>
 </defs>
 <rect width="1200" height="630" fill="#fff"/>
@@ -79,9 +81,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
 <circle cx="92" cy="558" r="34" fill="#ff5f50"/>
 <circle cx="1070" cy="96" r="16" fill="#203040"/>
 <rect x="1018" y="520" width="110" height="56" rx="28" fill="url(#dots)"/>
-${imageCard(images[0], 48, 104, -8)}
-${imageCard(images[1], 1018, 112, 7)}
-${imageCard(images[2], 52, 462, 6)}
 <text x="190" y="58" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="26" font-weight="800" letter-spacing="2" fill="#203040">SANDA GAKUEN CULTURAL FESTIVAL</text>
 <rect x="190" y="82" width="430" height="38" rx="19" fill="#203040"/>
 <text x="405" y="108" text-anchor="middle" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="17" font-weight="700" fill="#fff">${subtitle}</text>
@@ -91,9 +90,8 @@ ${imageCard(images[2], 52, 462, 6)}
 <text x="190" y="302" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="49" font-weight="900" fill="#2f80ed">出会おう。</text>
 <rect x="190" y="332" width="390" height="46" rx="23" fill="#ffcc2f"/>
 <text x="385" y="362" text-anchor="middle" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="21" font-weight="800" fill="#203040">10分のLT × 2日間</text>
-${mainImage}
-<rect x="908" y="458" width="214" height="36" rx="18" fill="#203040"/>
-<text x="1015" y="482" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="1.5" fill="#fff">SPEAKER / ${mainSpeaker}</text>
+<text x="875" y="130" font-family="Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="1.5" fill="#203040">ALL SPEAKERS / ${selected.length}</text>
+${speakerTiles}
 <text x="190" y="518" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="20" font-weight="700" fill="#203040">${title}</text>
 <text x="190" y="552" font-family="Arial, 'Noto Sans JP', sans-serif" font-size="19" font-weight="700" fill="#203040">${dateLabel}  /  ${venue}</text>
 <text x="190" y="589" font-family="Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="1.5" fill="#2f80ed">FREE ENTRY  ·  TALK  ·  CULTURE</text>
