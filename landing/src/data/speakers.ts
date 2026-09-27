@@ -12,6 +12,8 @@ export type Speaker = {
   online: boolean
 }
 
+const absoluteUrl = (path: string) => new URL(path, 'https://sglt.under18.dev').toString()
+
 export const speakers: Speaker[] = [
   {
     id: 'tanahiro2010',
