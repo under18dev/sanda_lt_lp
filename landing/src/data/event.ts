@@ -16,6 +16,7 @@ export const event = {
   connpassUrl: 'https://gdgs.jp/sanda-lt-lp',
   streamUrl: null as string | null,
   organizer: '田中博悠 / tanahiro2010',
+  defaultOgpImage: '/assets/ogp.jpg',
   ogpImage: '/ogp/event.png',
   ogpSpeakerIds: ['tanahiro2010', 'macchatee', 'musashinofenaga', 'osumi-tomoya'],
 } as const
