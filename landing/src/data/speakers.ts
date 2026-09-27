@@ -105,7 +105,7 @@ export const speakers: Speaker[] = [
     role: 'Speaker',
     category: 'other',
     bio: `やりたいことができる状況でやりたくないことを優先しなきゃ行けないことってありますよね。いつもその中で生きています`,
-    icon: absoluteUrl('/images/speakers/ikkia-atsu.webp'),
+    icon: absoluteUrl('/images/speakers/ikkia-atsu.jpg'),
     online: false,
   },
   {
