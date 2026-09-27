@@ -1,0 +1,111 @@
+import { Database } from 'bun:sqlite'
+import { mkdirSync } from 'node:fs'
+import { event as seedEvent } from './event'
+import { speakers as seedSpeakers, type Speaker } from './speakers'
+import { sessions as seedSessions, type Session } from './sessions'
+
+export type EventRecord = {
+  siteUrl: string
+  title: string
+  shortTitle: string
+  description: string
+  dates: { label: string; date: string }[]
+  dateLabel: string
+  timeLabel: string
+  setupTimeLabel: string
+  venue: string
+  venueDetail: string
+  fee: string
+  capacity: string
+  connpassUrl: string
+  streamUrl: string | null
+  organizer: string
+  defaultOgpImage: string
+  ogpImage: string
+  ogpSpeakerIds: string[]
+}
+
+const dataDir = process.env.DATA_DIR ?? './data'
+const databasePath = process.env.DATABASE_PATH ?? `${dataDir}/event.db`
+mkdirSync(dataDir, { recursive: true })
+export const db = new Database(databasePath, { create: true })
+
+export let event: EventRecord = structuredClone(seedEvent) as unknown as EventRecord
+export let speakers: Speaker[] = structuredClone(seedSpeakers)
+export let sessions: Session[] = structuredClone(seedSessions)
+export let sessionDates = structuredClone([
+  { id: '2026-11-02' as const, label: '11.02 MON' },
+  { id: '2026-11-03' as const, label: '11.03 TUE' },
+])
+
+export const speakerCategories = [
+  { id: 'all', label: 'ALL' },
+  { id: 'web', label: 'WEB' },
+  { id: 'sns', label: 'SNS' },
+  { id: 'culture', label: 'CULTURE' },
+  { id: 'medical', label: 'MEDICAL' },
+  { id: 'other', label: 'OTHER' },
+]
+
+const ensureSchema = () => {
+  db.run(`CREATE TABLE IF NOT EXISTS event_settings (id INTEGER PRIMARY KEY CHECK (id = 1), data TEXT NOT NULL, updated_at TEXT NOT NULL)`)
+  db.run(`CREATE TABLE IF NOT EXISTS speakers (id TEXT PRIMARY KEY, name TEXT NOT NULL, handle TEXT, role TEXT NOT NULL, category TEXT NOT NULL, bio TEXT NOT NULL, icon TEXT, ogp_image TEXT, online INTEGER NOT NULL DEFAULT 0, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
+  db.run(`CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, date TEXT NOT NULL, start TEXT NOT NULL, end TEXT NOT NULL, title TEXT NOT NULL, category TEXT NOT NULL, color TEXT NOT NULL, summary TEXT NOT NULL, detail TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
+  db.run(`CREATE TABLE IF NOT EXISTS session_speakers (session_id TEXT NOT NULL, speaker_id TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (session_id, speaker_id))`)
+  db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (id TEXT PRIMARY KEY, csrf TEXT NOT NULL, expires_at INTEGER NOT NULL)`)
+}
+
+const seed = () => {
+  const existing = db.query('SELECT id FROM event_settings WHERE id = 1').get()
+  if (existing) return
+  const now = new Date().toISOString()
+  db.query('INSERT INTO event_settings (id, data, updated_at) VALUES (1, ?, ?)').run(JSON.stringify(seedEvent), now)
+  const insertSpeaker = db.query('INSERT INTO speakers (id, name, handle, role, category, bio, icon, ogp_image, online, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  seedSpeakers.forEach((speaker, index) => insertSpeaker.run(speaker.id, speaker.name, speaker.handle ?? null, speaker.role, speaker.category, speaker.bio, speaker.icon ?? null, speaker.ogpImage ?? null, speaker.online ? 1 : 0, index))
+  const insertSession = db.query('INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  const insertRelation = db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)')
+  seedSessions.forEach((session, index) => {
+    insertSession.run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, index)
+    session.speakerIds.forEach((speakerId, speakerIndex) => insertRelation.run(session.id, speakerId, speakerIndex))
+  })
+}
+
+export const refreshStore = () => {
+  const eventRow = db.query('SELECT data FROM event_settings WHERE id = 1').get() as { data: string } | null
+  if (eventRow) event = JSON.parse(eventRow.data) as EventRecord
+  const speakerRows = db.query('SELECT id, name, handle, role, category, bio, icon, ogp_image, online FROM speakers WHERE published = 1 ORDER BY sort_order, id').all() as Array<Record<string, unknown>>
+  speakers = speakerRows.map((row) => ({ id: String(row.id), name: String(row.name), handle: row.handle ? String(row.handle) : undefined, role: String(row.role), category: String(row.category), bio: String(row.bio), icon: row.icon ? String(row.icon) : undefined, ogpImage: row.ogp_image ? String(row.ogp_image) : undefined, online: Boolean(row.online) }))
+  const sessionRows = db.query('SELECT id, date, start, end, title, category, color, summary, detail FROM sessions WHERE published = 1 ORDER BY date, start, sort_order, id').all() as Array<Record<string, unknown>>
+  sessions = sessionRows.map((row) => ({ id: String(row.id), date: String(row.date) as Session['date'], start: String(row.start), end: String(row.end), title: String(row.title), category: String(row.category) as Session['category'], color: String(row.color) as Session['color'], summary: String(row.summary), detail: String(row.detail), speakerIds: (db.query('SELECT speaker_id FROM session_speakers WHERE session_id = ? ORDER BY sort_order').all(String(row.id)) as Array<{ speaker_id: string }>).map((item) => item.speaker_id) }))
+  sessionDates = event.dates.map((item, index) => {
+    const match = item.date.match(/(\d+)年(\d+)月(\d+)日（(.)）/)
+    const weekday = match ? ({ 月: 'MON', 火: 'TUE', 水: 'WED', 木: 'THU', 金: 'FRI', 土: 'SAT', 日: 'SUN' } as Record<string, string>)[match[4]] : ''
+    return { id: index === 0 ? '2026-11-02' as const : '2026-11-03' as const, label: match ? `${match[2].padStart(2, '0')}.${match[3].padStart(2, '0')} ${weekday}` : item.date }
+  })
+}
+
+ensureSchema()
+seed()
+refreshStore()
+
+export const saveEvent = (next: Partial<EventRecord>) => {
+  event = { ...event, ...next }
+  db.query('UPDATE event_settings SET data = ?, updated_at = ? WHERE id = 1').run(JSON.stringify(event), new Date().toISOString())
+  refreshStore()
+}
+
+export const saveSpeaker = (speaker: Speaker) => {
+  db.query(`INSERT INTO speakers (id, name, handle, role, category, bio, icon, ogp_image, online, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, handle=excluded.handle, role=excluded.role, category=excluded.category, bio=excluded.bio, icon=excluded.icon, ogp_image=excluded.ogp_image, online=excluded.online, sort_order=excluded.sort_order`).run(speaker.id, speaker.name, speaker.handle ?? null, speaker.role, speaker.category, speaker.bio, speaker.icon ?? null, speaker.ogpImage ?? null, speaker.online ? 1 : 0, speakers.findIndex((item) => item.id === speaker.id))
+  refreshStore()
+}
+
+export const deleteSpeaker = (id: string) => { db.query('DELETE FROM speakers WHERE id = ?').run(id); refreshStore() }
+
+export const saveSession = (session: Session) => {
+  db.query(`INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET date=excluded.date, start=excluded.start, end=excluded.end, title=excluded.title, category=excluded.category, color=excluded.color, summary=excluded.summary, detail=excluded.detail`).run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, sessions.findIndex((item) => item.id === session.id))
+  db.query('DELETE FROM session_speakers WHERE session_id = ?').run(session.id)
+  session.speakerIds.forEach((speakerId, index) => db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)').run(session.id, speakerId, index))
+  refreshStore()
+}
+
+export const deleteSession = (id: string) => { db.query('DELETE FROM session_speakers WHERE session_id = ?').run(id); db.query('DELETE FROM sessions WHERE id = ?').run(id); refreshStore() }

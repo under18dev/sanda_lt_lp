@@ -1,13 +1,33 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
-import { event } from './data/event'
-import { sessions } from './data/sessions'
-import { speakers } from './data/speakers'
-import { createSessionOgp, createSpeakerOgp } from './ogp'
+import { event, sessions, speakers, refreshStore, saveEvent, saveSession, saveSpeaker, deleteSession, deleteSpeaker } from './data/runtime'
+import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
+import { Dashboard, EventForm, Login, SessionForm, SessionList, SpeakerForm, SpeakerList } from './admin/views'
+import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import sharp from 'sharp'
 
 const app = new Hono()
+
+refreshStore()
+
+const dataDir = process.env.DATA_DIR ?? './data'
+const field = (body: Record<string, unknown>, name: string) => typeof body[name] === 'string' ? body[name] as string : ''
+const fieldList = (body: Record<string, unknown>, name: string) => { const value = body[name]; return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : typeof value === 'string' ? [value] : [] }
+const adminGuard = (c: Parameters<typeof requireAdmin>[0]) => requireAdmin(c)
+
+const saveUploadedImage = async (file: unknown, area: 'speakers' | 'event') => {
+  if (!(file instanceof File) || file.size === 0) return undefined
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) throw new Error('画像はJPEG、PNG、WebPの5MB以下にしてください。')
+  const buffer = await sharp(Buffer.from(await file.arrayBuffer())).rotate().resize(1000, 1000, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 86 }).toBuffer()
+  const relative = `uploads/${area}/${crypto.randomUUID()}.webp`
+  await mkdir(join(dataDir, 'uploads', area), { recursive: true })
+  await writeFile(join(dataDir, relative), buffer)
+  return `/${relative}`
+}
 
 const xmlEscape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;')
 
@@ -21,6 +41,70 @@ app.get('/sitemap.xml', (c) => {
 
 app.use('/assets/*', serveStatic({ root: './dist' }))
 app.use('/images/*', serveStatic({ root: './dist' }))
+app.use('/uploads/*', serveStatic({ root: dataDir }))
+
+app.get('/healthz', (c) => c.json({ ok: true }))
+
+app.get('/admin/login', (c) => c.html(<Login />))
+app.post('/admin/login', async (c) => {
+  const body = await c.req.parseBody()
+  if (await login(c, field(body, 'password'))) return c.redirect('/admin')
+  return c.html(<Login error="パスワードが正しくないか、ログイン試行が制限されています。" />, 401)
+})
+app.post('/admin/logout', (c) => { logout(c); return c.redirect('/admin/login') })
+
+app.get('/admin', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<Dashboard csrf={session.csrf} />) })
+app.get('/admin/event', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<EventForm csrf={session.csrf} />) })
+app.post('/admin/event', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  saveEvent({ title: field(body, 'title'), shortTitle: field(body, 'shortTitle'), description: field(body, 'description'), dateLabel: field(body, 'dateLabel'), timeLabel: field(body, 'timeLabel'), setupTimeLabel: field(body, 'setupTimeLabel'), venue: field(body, 'venue'), venueDetail: field(body, 'venueDetail'), fee: field(body, 'fee'), capacity: field(body, 'capacity'), connpassUrl: field(body, 'connpassUrl'), streamUrl: field(body, 'streamUrl') || null })
+  return c.redirect('/admin/event')
+})
+app.post('/admin/ogp', async (c) => {
+  const session = adminGuard(c); if (session instanceof Response) return session
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const buffer = await createEventOgp(event, speakers)
+  await mkdir(join(dataDir, 'ogp'), { recursive: true })
+  await writeFile(join(dataDir, 'ogp', 'event.png'), buffer)
+  saveEvent({ ogpImage: '/uploads/ogp/event.png' })
+  return c.redirect('/admin')
+})
+
+app.get('/admin/speakers', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SpeakerList csrf={session.csrf} />) })
+app.get('/admin/speakers/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SpeakerForm csrf={session.csrf} />) })
+app.get('/admin/speakers/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const speaker = speakers.find((item) => item.id === c.req.param('id')); if (!speaker) return c.notFound(); return c.html(<SpeakerForm csrf={session.csrf} speaker={speaker} />) })
+app.post('/admin/speakers/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, undefined, session.csrf) })
+app.post('/admin/speakers/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSpeakerRequest(c, c.req.param('id'), session.csrf) })
+app.post('/admin/speakers/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSpeaker(c.req.param('id')); return c.redirect('/admin/speakers') })
+
+const saveSpeakerRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined, csrf: string) => {
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const id = field(body, 'id') || existingId || crypto.randomUUID()
+  const existing = speakers.find((item) => item.id === existingId)
+  let icon = existing?.icon
+  try { icon = await saveUploadedImage(body.icon, 'speakers') ?? icon } catch (error) { return c.text(error instanceof Error ? error.message : '画像を保存できませんでした。', 400) }
+  saveSpeaker({ id, name: field(body, 'name'), handle: field(body, 'handle') || undefined, role: field(body, 'role'), category: field(body, 'category'), bio: field(body, 'bio'), icon, online: body.online === 'on' })
+  return c.redirect(`/admin/speakers/${id}`)
+}
+
+app.get('/admin/sessions', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SessionList csrf={session.csrf} />) })
+app.get('/admin/sessions/new', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SessionForm csrf={session.csrf} />) })
+app.get('/admin/sessions/:id', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const item = sessions.find((candidate) => candidate.id === c.req.param('id')); if (!item) return c.notFound(); return c.html(<SessionForm csrf={session.csrf} session={item} />) })
+app.post('/admin/sessions/new', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, undefined) })
+app.post('/admin/sessions/:id', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return saveSessionRequest(c, c.req.param('id')) })
+app.post('/admin/sessions/:id/delete', async (c) => { const session = adminGuard(c); if (session instanceof Response) return session; const body = await c.req.parseBody(); if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403); deleteSession(c.req.param('id')); return c.redirect('/admin/sessions') })
+
+const saveSessionRequest = async (c: Parameters<typeof requireAdmin>[0], existingId: string | undefined) => {
+  const body = await c.req.parseBody()
+  if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const id = field(body, 'id') || existingId || crypto.randomUUID()
+  saveSession({ id, date: field(body, 'date') as '2026-11-02' | '2026-11-03', start: field(body, 'start'), end: field(body, 'end'), title: field(body, 'title'), category: field(body, 'category') as 'talk' | 'special' | 'break', color: field(body, 'color') as 'white' | 'yellow' | 'blue' | 'green' | 'red', summary: field(body, 'summary'), detail: field(body, 'detail'), speakerIds: fieldList(body, 'speakerIds') })
+  return c.redirect(`/admin/sessions/${id}`)
+}
 
 app.get('/ogp/speakers/:id', async (c) => {
   const speaker = speakers.find((candidate) => candidate.id === c.req.param('id'))

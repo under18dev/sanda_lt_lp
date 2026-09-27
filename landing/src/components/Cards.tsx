@@ -1,4 +1,4 @@
-import { speakers } from '../data/speakers'
+import { speakers } from '../data/runtime'
 import type { Session } from '../data/sessions'
 
 const speakerById = new Map(speakers.map((speaker) => [speaker.id, speaker]))

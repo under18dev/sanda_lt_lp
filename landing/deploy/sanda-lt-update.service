@@ -1,0 +1,7 @@
+[Unit]
+Description=Update Sanda LT landing site
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/sanda-lt/app
+ExecStart=/opt/sanda-lt/app/deploy/pull-and-deploy.sh

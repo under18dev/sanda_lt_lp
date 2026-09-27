@@ -1,7 +1,7 @@
 /** @jsxImportSource hono/jsx/dom */
 import { useEffect, useState } from 'hono/jsx/dom'
 import { createRoot } from 'hono/jsx/dom/client'
-import { sessions, sessionDates } from './data/sessions'
+import { sessionDates } from './data/sessions'
 import { speakerCategories } from './data/speakers'
 import './styles/app.css'
 
@@ -57,6 +57,8 @@ const MobileMenu = () => {
 
 const SessionDialog = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const data = document.getElementById('runtime-sessions')?.textContent
+  const sessions = data ? JSON.parse(data) as Array<{ id: string; category: string; title: string; detail: string; date: string; start: string; end: string }> : []
   const selected = sessions.find((session) => session.id === selectedId)
 
   useEffect(() => {

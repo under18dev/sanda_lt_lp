@@ -37,7 +37,37 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
+`DATA_DIR` defaults to `./data`. Productionでは`.env`の`DATA_DIR`を`/opt/sanda-lt/data`にし、ホスト側に永続ディレクトリを作成します。
+
+```sh
+sudo mkdir -p /opt/sanda-lt/data/{uploads/speakers,uploads/event,ogp}
+```
+
+管理画面のパスワードは平文ではなく、Bunでハッシュを生成して設定します。
+
+```sh
+bun -e "console.log(await Bun.password.hash(process.argv[1]))" 'change-this-password'
+```
+
+出力された値を`ADMIN_PASSWORD_HASH`へ、ランダムな長い値を`SESSION_SECRET`へ設定してください。管理画面は`/admin`です。
+
 Do not commit `.env` or the tunnel token.
+
+## Admin and persistent uploads
+
+登壇者やセッションは`/admin`から編集できます。画像は`/app/data/uploads`へWebPとして保存され、SQLiteの`event.db`にはファイルパスだけが保存されます。コンテナの再作成やGit更新では`/opt/sanda-lt/data`は削除されません。
+
+## Automatic deployment and backup
+
+サーバー側で5分ごとにGitHubの`main`を確認するsystemd timerを利用できます。
+
+```sh
+sudo cp deploy/sanda-lt-update.service deploy/sanda-lt-update.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now sanda-lt-update.timer
+```
+
+`deploy/pull-and-deploy.sh`は変更がある場合だけWebイメージを更新し、`/healthz`で確認します。cloudflaredは再起動しません。`deploy/backup.sh`はDB・画像・OGPをバックアップします。
 
 ## Speaker images and OGP
 

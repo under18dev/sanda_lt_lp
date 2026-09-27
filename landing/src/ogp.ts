@@ -2,8 +2,10 @@ import { readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import sharp from 'sharp'
 import type { Speaker } from './data/speakers'
+import type { EventRecord } from './data/runtime'
 
 const publicDir = join(process.cwd(), 'public')
+const dataDir = process.env.DATA_DIR ?? './data'
 const imageCache = new Map<string, Promise<string>>()
 
 const escapeXml = (value: string) => value
@@ -46,14 +48,16 @@ const imageDataUri = (path: string | undefined, label: string, color: string) =>
       const parsedPath = new URL(path, 'https://local.invalid')
       const localPath = parsedPath.origin === 'https://sglt.under18.dev' ? parsedPath.pathname : undefined
       if (localPath) {
-        buffer = await readFile(join(publicDir, localPath.replace(/^\//, '').split('?')[0]))
+        const cleanPath = localPath.replace(/^\//, '').split('?')[0]
+        buffer = await readFile(cleanPath.startsWith('uploads/') ? join(dataDir, cleanPath) : join(publicDir, cleanPath))
       } else if (/^https?:\/\//.test(path)) {
         const response = await fetch(path)
         if (!response.ok) throw new Error(`Image request failed: ${response.status}`)
         buffer = Buffer.from(await response.arrayBuffer())
         remoteMime = response.headers.get('content-type')?.split(';')[0]
       } else {
-        buffer = await readFile(join(publicDir, path.replace(/^\//, '').split('?')[0]))
+        const cleanPath = path.replace(/^\//, '').split('?')[0]
+        buffer = await readFile(cleanPath.startsWith('uploads/') ? join(dataDir, cleanPath) : join(publicDir, cleanPath))
       }
       const extension = extname(new URL(path, 'https://local.invalid').pathname).toLowerCase()
       const mime = remoteMime ?? (extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : extension === '.png' ? 'image/png' : 'image/webp')
@@ -105,3 +109,12 @@ export const createSessionOgp = (session: { title: string; date: string; start: 
     accent: '#2f80ed',
   })
 }
+
+export const createEventOgp = (event: EventRecord, speakers: Speaker[]) => createOgp({
+  label: 'EVENT',
+  title: event.title,
+  subtitle: event.description,
+  meta: `${event.dateLabel} / ${event.venue}`,
+  image: speakers.find((speaker) => event.ogpSpeakerIds.includes(speaker.id))?.icon ?? speakers[0]?.icon,
+  accent: '#5b83ef',
+})

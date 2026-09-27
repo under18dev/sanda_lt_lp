@@ -1,7 +1,7 @@
 import type { Child } from 'hono/jsx'
-import { event } from '../data/event'
+import { event, sessions } from '../data/runtime'
 
-const assetVersion = '2026-09-27-18'
+const assetVersion = '2026-09-27-19'
 
 type LayoutProps = {
   title?: string
@@ -79,6 +79,7 @@ export const Layout = ({ title, description = event.description, ogImage = event
         <Footer />
       </div>
       <div id="client-root" data-active={active ?? ''}></div>
+      <script type="application/json" id="runtime-sessions" dangerouslySetInnerHTML={{ __html: JSON.stringify(sessions).replaceAll('<', '\\u003c') }} />
       <script type="module" src={`/assets/client.js?v=${assetVersion}`}></script>
     </body>
   </html>
