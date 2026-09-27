@@ -5,6 +5,7 @@ import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
 import { Dashboard, EventForm, FaqForm, FaqList, Login, OgpForm, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
+import { SpeakerOgpGenerator } from './admin/speaker-ogp'
 import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -67,6 +68,7 @@ app.post('/admin/logout', (c) => { logout(c); return c.redirect('/admin/login') 
 app.get('/admin', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<Dashboard csrf={session.csrf} />) })
 app.get('/admin/event', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<EventForm csrf={session.csrf} />) })
 app.get('/admin/ogp', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<OgpForm csrf={session.csrf} />) })
+app.get('/admin/ogp/speaker', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SpeakerOgpGenerator />) })
 app.post('/admin/event', async (c) => {
   const session = adminGuard(c); if (session instanceof Response) return session
   const body = await c.req.parseBody()
