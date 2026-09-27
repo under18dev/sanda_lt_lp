@@ -19,5 +19,5 @@ export const event = {
   organizer: '田中博悠 / tanahiro2010',
   defaultOgpImage: '/assets/ogp.jpg',
   ogpImage: '/ogp/event.png',
-  ogpSpeakerIds: ['tanahiro2010', 'macchatee', 'musashinofenaga', 'osumi-tomoya'],
+  ogpSpeakerIds: ['tanahiro2010', 'tm', 'macchatee', 'osumi-tomoya'],
 } as const

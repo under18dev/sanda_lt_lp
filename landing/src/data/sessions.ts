@@ -21,7 +21,7 @@ export const sessions: Session[] = [
   { id: 'bokuchi', date: '2026-11-02', start: '10:20', end: '10:30', title: 'Bokuchiのすゝめ', speakerIds: ['tanahiro2010'], category: 'talk', color: 'yellow', summary: '田中博悠さんによる10分LTです。', detail: 'Bokuchiについて紹介します。' },
   { id: 'okaz02-tbd', date: '2026-11-02', start: '10:30', end: '10:40', title: 'LT枠 TBD', speakerIds: ['okaz02'], category: 'talk', color: 'blue', summary: 'Okaz02さんによるLTです。', detail: '発表内容は決まり次第更新します。' },
   { id: 'matlab-sports-engineering', date: '2026-11-02', start: '10:40', end: '10:50', title: 'MATLABを使ってスポーツエンジニアリング', speakerIds: ['ikkia-atsu'], category: 'talk', color: 'green', summary: 'MATLABとスポーツエンジニアリングのLTです。', detail: 'MATLABを使ったスポーツエンジニアリングについて紹介します。' },
-  tbd('tbd-1050', '10:50', '11:00', 'red'),
+  { id: 'video-retention', date: '2026-11-02', start: '10:50', end: '11:00', title: 'なぜこの動画、最後まで見ちゃうんだろう？――動画編集者がやっている“見る人を離脱させない工夫”', speakerIds: ['tm'], category: 'talk', color: 'red', summary: '動画編集者が実践する、見る人を離脱させない工夫についてのLTです。', detail: '動画編集者がやっている、見る人を離脱させない工夫について紹介します。' },
   tbd('tbd-1100', '11:00', '11:10', 'yellow'),
   tbd('tbd-1110', '11:10', '11:20', 'blue'),
   tbd('tbd-1120', '11:20', '11:30', 'green'),

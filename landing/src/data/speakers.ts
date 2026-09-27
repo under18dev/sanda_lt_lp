@@ -122,6 +122,16 @@ export const speakers: Speaker[] = [
 CATechLounge・NxTEND戦略事業本部・TechSelect+メンター・運営STECH 
 GoCon TSKaigi kyoto.go biwako.go・りえ高生`,
     online: false,
+  },
+  {
+    id: 'tm',
+    name: 'TM',
+    handle: 'unischool_tm',
+    role: 'Video editor',
+    category: 'culture',
+    bio: '動画編集者。動画を見る人を離脱させない工夫を研究し、映像制作に取り組んでいます。',
+    icon: absoluteUrl('/images/speakers/tm.jpg'),
+    online: false,
   }
 ]
 
