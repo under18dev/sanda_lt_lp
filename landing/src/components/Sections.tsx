@@ -81,14 +81,14 @@ export const SpeakerPage = ({ speakerId }: { speakerId: string }) => {
   const speakerSessions = sessions.filter((session) => session.speakerIds.includes(speaker.id))
   return (
     <main>
-      <PageDataIntro eyebrow={`${speaker.category.toUpperCase()} / SPEAKER`} title={speaker.name} description={speaker.bio} />
+      <PageDataIntro eyebrow={`${speaker.category.toUpperCase()} / SPEAKER`} title={speaker.name} description={speaker.bio} preserveLineBreaks />
       <section class="section wrap speaker-detail">
         <div class={`speaker-detail-avatar ${speaker.icon ? 'has-image' : ''}`}>
           {speaker.icon ? <img src={speaker.icon} alt="" /> : <span aria-hidden="true">{speaker.name.slice(0, 1)}</span>}
         </div>
         <div>
           <div class="eyebrow">PROFILE</div>
-          <p class="detail-lead">{speaker.bio}</p>
+          <p class="detail-lead preserve-line-breaks">{speaker.bio}</p>
           <p>{speaker.role}{speaker.online ? ' / ONLINE' : ''}</p>
           <h2>Sessions</h2>
           <div class="detail-grid">{speakerSessions.map((session) => <SessionCard key={session.id} session={session} compact />)}</div>
@@ -99,6 +99,6 @@ export const SpeakerPage = ({ speakerId }: { speakerId: string }) => {
   )
 }
 
-const PageDataIntro = ({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) => (
-  <section class="page-intro wrap"><div class="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></section>
+const PageDataIntro = ({ eyebrow, title, description, preserveLineBreaks = false }: { eyebrow: string; title: string; description: string; preserveLineBreaks?: boolean }) => (
+  <section class="page-intro wrap"><div class="eyebrow">{eyebrow}</div><h1>{title}</h1><p class={preserveLineBreaks ? 'preserve-line-breaks' : undefined}>{description}</p></section>
 )
