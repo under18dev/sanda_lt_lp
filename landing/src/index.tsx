@@ -4,7 +4,7 @@ import { event, faqs, sessions, speakers, sponsors, refreshStore, reorderFaqs, r
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
-import { Dashboard, EventForm, FaqForm, FaqList, Login, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
+import { Dashboard, EventForm, FaqForm, FaqList, Login, OgpForm, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
 import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -55,6 +55,7 @@ app.post('/admin/logout', (c) => { logout(c); return c.redirect('/admin/login') 
 
 app.get('/admin', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<Dashboard csrf={session.csrf} />) })
 app.get('/admin/event', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<EventForm csrf={session.csrf} />) })
+app.get('/admin/ogp', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<OgpForm csrf={session.csrf} />) })
 app.post('/admin/event', async (c) => {
   const session = adminGuard(c); if (session instanceof Response) return session
   const body = await c.req.parseBody()
@@ -66,11 +67,13 @@ app.post('/admin/ogp', async (c) => {
   const session = adminGuard(c); if (session instanceof Response) return session
   const body = await c.req.parseBody()
   if (!validCsrf(c, body.csrf)) return c.text('Invalid CSRF token', 403)
+  const selectedSpeakerIds = fieldList(body, 'speakerIds')
+  saveEvent({ title: field(body, 'title'), description: field(body, 'description'), dateLabel: field(body, 'dateLabel'), venue: field(body, 'venue'), ogpSpeakerIds: selectedSpeakerIds })
   const buffer = await createEventOgp(event, speakers)
   await mkdir(join(dataDir, 'ogp'), { recursive: true })
   await writeFile(join(dataDir, 'ogp', 'event.png'), buffer)
-  saveEvent({ ogpImage: '/uploads/ogp/event.png' })
-  return c.redirect('/admin')
+  saveEvent({ ogpImage: `/uploads/ogp/event.png?v=${Date.now()}` })
+  return c.redirect('/admin/ogp')
 })
 
 app.get('/admin/speakers', (c) => { const session = adminGuard(c); if (session instanceof Response) return session; return c.html(<SpeakerList csrf={session.csrf} />) })
