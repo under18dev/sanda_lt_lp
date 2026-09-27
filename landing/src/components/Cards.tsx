@@ -28,7 +28,7 @@ export const SessionCard = ({ session, compact = false }: { session: Session; co
     <a class="session-card-link" href={`/sessions/${session.id}`} data-session-id={session.id}>
       <div class="session-time"><time>{session.start}</time><span>—</span><time>{session.end}</time></div>
       <div class="session-card-content">
-        <div class="session-label">{session.category === 'special' ? 'SPECIAL' : '10 MIN TALK'}</div>
+        <div class="session-label">{session.category === 'special' ? 'SPECIAL' : session.category === 'break' ? 'BREAK' : '10 MIN TALK'}</div>
         <h3>{session.title}</h3>
         <p>{session.summary}</p>
         <div class="session-speakers">{session.speakerIds.map((id) => speakerById.get(id)?.name).filter(Boolean).join(' / ')}</div>

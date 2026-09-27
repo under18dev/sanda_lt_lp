@@ -86,6 +86,37 @@ export const speakers: Speaker[] = [
  Google Developers Expert(GCP)。
 バイクはアフリカツインとトライアンフ スラクストンを乗っております。`,
     online: false,
+  },
+  {
+    id: 'okaz02',
+    name: 'Okaz02',
+    handle: '0kaz02',
+    role: 'Speaker',
+    category: 'other',
+    bio: 'こんにちは！普段暇で、やりたいことを思いついたらなんでもやってます！',
+    icon: 'https://pbs.twimg.com/profile_images/2073344638078091264/OISMkcfw_400x400.jpg',
+    online: false,
+  },
+  {
+    id: 'ikkia-atsu',
+    name: '一気圧',
+    role: 'Speaker',
+    category: 'other',
+    bio: `やりたいことができる状況でやりたくないことを優先しなきゃ行けないことってありますよね。いつもその中で生きています`,
+    icon: '/images/speakers/ikkia-atsu.jpg',
+    online: false,
+  },
+  {
+    id: 'taramanji',
+    name: 'taramanji',
+    handle: 'JavaLangRuntime',
+    role: 'Engineer',
+    category: 'web',
+    bio: `締切駆動📷マン/SWE/XR研究者 
+立命館大学大学院M1・RM2C・クラスターメタ研RA・RCC・ CyberAgent・JINEN・888・
+CATechLounge・NxTEND戦略事業本部・TechSelect+メンター・運営STECH 
+GoCon TSKaigi kyoto.go biwako.go・りえ高生`,
+    online: false,
   }
 ]
 
