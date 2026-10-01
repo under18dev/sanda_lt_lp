@@ -100,6 +100,14 @@ const migrateSchedule = () => {
   const applied = db.query('SELECT id FROM app_migrations WHERE id = ?').get(migrationId)
   if (applied) return
 
+  // The schedule may already have been applied through the production admin UI.
+  // Avoid creating duplicate slots when that database is deployed with this version.
+  const productionAfternoon = db.query(`SELECT id FROM sessions WHERE date = '2026-11-02' AND start = '14:00' AND end = '14:10'`).get() as { id: string } | null
+  if (productionAfternoon && productionAfternoon.id !== 'tbd-1400') {
+    db.query('INSERT INTO app_migrations (id, applied_at) VALUES (?, ?)').run(migrationId, new Date().toISOString())
+    return
+  }
+
   const removedIds = [
     'tbd-1205', 'tbd-1215', 'tbd-1225', 'tbd-1235', 'tbd-1245', 'break-1255',
     'break-1500', 'tbd-1505',
