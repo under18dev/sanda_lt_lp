@@ -66,6 +66,7 @@ const ensureSchema = () => {
   db.run(`CREATE TABLE IF NOT EXISTS admin_sessions (id TEXT PRIMARY KEY, csrf TEXT NOT NULL, expires_at INTEGER NOT NULL)`)
   db.run(`CREATE TABLE IF NOT EXISTS faqs (id TEXT PRIMARY KEY, question TEXT NOT NULL, answer TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
   db.run(`CREATE TABLE IF NOT EXISTS sponsors (id TEXT PRIMARY KEY, name TEXT NOT NULL, tier TEXT NOT NULL, description TEXT NOT NULL, detail TEXT NOT NULL, url TEXT, logo TEXT, sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1)`)
+  db.run(`CREATE TABLE IF NOT EXISTS app_migrations (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL)`)
 }
 
 const seed = () => {
@@ -94,6 +95,57 @@ const seed = () => {
   }
 }
 
+const migrateSchedule = () => {
+  const migrationId = '2026-10-01-lunch-ai-schedule'
+  const applied = db.query('SELECT id FROM app_migrations WHERE id = ?').get(migrationId)
+  if (applied) return
+
+  const removedIds = [
+    'tbd-1205', 'tbd-1215', 'tbd-1225', 'tbd-1235', 'tbd-1245', 'break-1255',
+    'break-1500', 'tbd-1505',
+  ]
+  const changedIds = new Set([
+    'lunch-1205', 'ai-werewolf-play', 'ai-werewolf-making',
+    'tbd-1400', 'break-1410', 'tbd-1415', 'break-1425', 'tbd-1430',
+    'break-1440', 'tbd-1445', 'break-1455', 'tbd-1500',
+    'ai-era-technology', 'closing-1102', 'social-1102',
+  ])
+  const sessionsToUpsert = seedSessions.filter((session) => changedIds.has(session.id))
+  const sortOrderById = new Map(seedSessions.map((session, index) => [session.id, index]))
+
+  db.transaction(() => {
+    const deleteRelations = db.query('DELETE FROM session_speakers WHERE session_id = ?')
+    const deleteSession = db.query('DELETE FROM sessions WHERE id = ?')
+    removedIds.forEach((id) => {
+      deleteRelations.run(id)
+      deleteSession.run(id)
+    })
+
+    const upsertSession = db.query(`
+      INSERT INTO sessions (id, date, start, end, title, category, color, summary, detail, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        date=excluded.date,
+        start=excluded.start,
+        end=excluded.end,
+        title=excluded.title,
+        category=excluded.category,
+        color=excluded.color,
+        summary=excluded.summary,
+        detail=excluded.detail,
+        sort_order=excluded.sort_order
+    `)
+    const deleteChangedRelations = db.query('DELETE FROM session_speakers WHERE session_id = ?')
+    const insertRelation = db.query('INSERT INTO session_speakers (session_id, speaker_id, sort_order) VALUES (?, ?, ?)')
+    sessionsToUpsert.forEach((session) => {
+      upsertSession.run(session.id, session.date, session.start, session.end, session.title, session.category, session.color, session.summary, session.detail, sortOrderById.get(session.id) ?? 0)
+      deleteChangedRelations.run(session.id)
+      session.speakerIds.forEach((speakerId, index) => insertRelation.run(session.id, speakerId, index))
+    })
+    db.query('INSERT INTO app_migrations (id, applied_at) VALUES (?, ?)').run(migrationId, new Date().toISOString())
+  })()
+}
+
 export const refreshStore = () => {
   const eventRow = db.query('SELECT data FROM event_settings WHERE id = 1').get() as { data: string } | null
   if (eventRow) event = JSON.parse(eventRow.data) as EventRecord
@@ -114,6 +166,7 @@ export const refreshStore = () => {
 
 ensureSchema()
 seed()
+migrateSchedule()
 refreshStore()
 
 export const saveEvent = (next: Partial<EventRecord>) => {
