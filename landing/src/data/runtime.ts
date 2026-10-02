@@ -36,8 +36,21 @@ export type Faq = {
 
 const dataDir = process.env.DATA_DIR ?? './data'
 const databasePath = process.env.DATABASE_PATH ?? `${dataDir}/event.db`
-mkdirSync(dataDir, { recursive: true })
-export const db = new Database(databasePath, { create: true })
+
+const openDatabase = () => {
+  try {
+    mkdirSync(dataDir, { recursive: true })
+    return new Database(databasePath, { create: true })
+  } catch (error) {
+    console.error(
+      `[runtime] データディレクトリ "${dataDir}" に書き込めませんでした。` +
+        `ホスト側ディレクトリの所有権を確認してください（rootless podmanでは \`chown -R "$(id -u):$(id -g)" <DATA_DIR>\` が必要です）。`,
+    )
+    throw error
+  }
+}
+
+export const db = openDatabase()
 
 export let event: EventRecord = structuredClone(seedEvent) as unknown as EventRecord
 export let speakers: Speaker[] = structuredClone(seedSpeakers)

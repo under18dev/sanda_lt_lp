@@ -37,11 +37,18 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-`DATA_DIR` defaults to `./data`. Productionでは`.env`の`DATA_DIR`を`/opt/sanda-lt/data`にし、ホスト側に永続ディレクトリを作成します。
+Productionでは`.env`の`DATA_DIR`をGit checkoutの外側に設定してください。今回のサーバーでは、`/home/unischool/sanda_lt/data`を使用します。
 
 ```sh
-sudo mkdir -p /opt/sanda-lt/data/{uploads/speakers,uploads/event,ogp}
+mkdir -p /home/unischool/sanda_lt/data/{uploads/speakers,uploads/event,ogp}
+sudo chown -R "$(id -u):$(id -g)" /home/unischool/sanda_lt/data
 ```
+
+`.env`の`DATA_DIR`、`ADMIN_PASSWORD_HASH`、`SESSION_SECRET`は必須です。未設定のまま起動すると、Composeが停止して初期DBを作ることもありません。
+
+> **重要（podman / rootlessで必須）**: 上の`chown`を省くとコンテナが`/app/data`へ書き込めず、起動直後に`SQLITE_CANTOPEN`でクラッシュして`unhealthy`になります（`dependency failed to start: container ... is unhealthy`）。
+>
+> rootless podmanではコンテナ内の`root`がpodmanを実行するホストユーザーにマップされるため、`sudo mkdir`で作ったroot所有のディレクトリには書き込めません。データディレクトリをデプロイ実行ユーザー所有にしておく必要があります。Docker Desktopではコンテナがrootで動きマウントも書き込み可能なため、この問題は表面化しません。
 
 管理画面のパスワードは平文ではなく、Bunでハッシュを生成して設定します。
 
