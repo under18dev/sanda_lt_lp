@@ -60,6 +60,35 @@ bun -e "console.log(await Bun.password.hash(process.argv[1]))" 'change-this-pass
 
 Do not commit `.env` or the tunnel token.
 
+## MCP管理サーバー
+
+イベント情報をAIクライアントから編集するためのstdio MCPサーバーを用意しています。公開Webコンテナには`MCP_API_TOKEN`で保護した管理APIを追加し、ローカルのMCPプロセスがそこへ接続します。
+
+`.env`にはWebコンテナ側とMCPクライアント側で同じ長いランダム値を設定します。
+
+```env
+MCP_API_TOKEN=replace-with-a-long-random-token
+```
+
+ローカルのMCPクライアント設定例：
+
+```json
+{
+  "mcpServers": {
+    "sanda-lt-admin": {
+      "command": "bun",
+      "args": ["run", "/absolute/path/to/sanda_lt/landing/src/mcp-server.ts"],
+      "env": {
+        "SANDA_MCP_URL": "https://sglt.under18.dev",
+        "SANDA_MCP_TOKEN": "同じMCP_API_TOKEN"
+      }
+    }
+  }
+}
+```
+
+イベント情報、セッションの追加・更新・削除・並べ替え、登壇者、FAQ、スポンサーの取得・更新に対応しています。画像アップロードは初期版では管理画面から行います。
+
 ## Admin and persistent uploads
 
 登壇者やセッションは`/admin`から編集できます。画像は`/app/data/uploads`へWebPとして保存され、SQLiteの`event.db`にはファイルパスだけが保存されます。コンテナの再作成やGit更新では`/opt/sanda-lt/data`は削除されません。

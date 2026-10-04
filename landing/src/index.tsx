@@ -10,8 +10,11 @@ import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/au
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import sharp from 'sharp'
+import { registerMcpApi } from './mcp-api'
 
 const app = new Hono()
+
+registerMcpApi(app)
 
 refreshStore()
 
