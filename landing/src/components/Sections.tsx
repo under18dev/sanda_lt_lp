@@ -57,9 +57,9 @@ export const AccessPreview = () => (
 
 export const Sponsors = () => (
   <section class="section wrap sponsors-section" id="sponsors">
-    <SectionHeading title="Sponsors" description="この場を一緒につくる、協賛・スポンサーのみなさま。" />
-    {sponsors.length > 0 ? <div class="sponsor-grid">{sponsors.map((sponsor) => <a class={`sponsor-card sponsor-card-${sponsor.tier.toLowerCase()}`} href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id}><div class="sponsor-tier">{sponsor.tier}</div>{sponsor.logo ? <img src={sponsor.logo} alt={`${sponsor.name} ロゴ`} /> : <strong>{sponsor.name}</strong>}<p>{sponsor.description}</p><span class="sponsor-card-link">詳細を見る ↗</span></a>)}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>協賛パートナーを<br />募集しています。</h3></div><p>イベントの趣旨に共感し、知らない世界と出会う場を一緒につくってくださる方を募集しています。掲載内容は決まり次第更新します。</p></div>}
-    <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class={`sponsor-tier-item sponsor-tier-${tier.color}`}><span>{tier.name}</span><p>{tier.description}</p></div>)}</div>
+    <SectionHeading title="Sponsors" description="高校生が知らない世界と出会う教育機会を、ともにつくる協賛パートナーを募集しています。" />
+    {sponsors.length > 0 ? <div class="sponsor-grid">{sponsors.map((sponsor) => <a class={`sponsor-card sponsor-card-${sponsor.tier.toLowerCase()}`} href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id}><div class="sponsor-tier">{sponsor.tier}</div>{sponsor.logo ? <img src={sponsor.logo} alt={`${sponsor.name} ロゴ`} /> : <strong>{sponsor.name}</strong>}<p>{sponsor.description}</p><span class="sponsor-card-link">詳細を見る ↗</span></a>)}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>スポンサーではなく、<br />次世代と地域を支える<br />パートナーへ。</h3></div><p>協賛金は、登壇者・学生・地域の人が安心して集まれる場づくりに使います。企業・教育機関・団体それぞれの目的に合わせて、掲載や現地参加枠を調整します。</p></div>}
+    <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class={`sponsor-tier-item sponsor-tier-${tier.color}`}><span>{tier.name}</span><strong>{tier.price}</strong><p>{tier.description}</p></div>)}</div>
   </section>
 )
 

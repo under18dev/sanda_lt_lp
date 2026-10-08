@@ -124,7 +124,7 @@ const saveSponsorRequest = async (c: Parameters<typeof requireAdmin>[0], existin
   const existing = sponsors.find((item) => item.id === existingId)
   let logo = existing?.logo
   try { logo = await saveUploadedImage(body.logo, 'sponsors') ?? logo } catch (error) { return c.text(error instanceof Error ? error.message : '画像を保存できませんでした。', 400) }
-  saveSponsor({ id, name: field(body, 'name'), tier: field(body, 'tier') as 'PLATINUM' | 'GOLD' | 'SUPPORT', description: field(body, 'description'), detail: field(body, 'detail'), url: field(body, 'url') || undefined, logo, sortOrder: Number(field(body, 'sortOrder')) || 0 })
+  saveSponsor({ id, name: field(body, 'name'), tier: field(body, 'tier') as 'PLATINUM' | 'GOLD' | 'SILVER' | 'BRONZE' | 'SUPPORT', description: field(body, 'description'), detail: field(body, 'detail'), url: field(body, 'url') || undefined, logo, sortOrder: Number(field(body, 'sortOrder')) || 0 })
   return c.redirect(`/admin/sponsors/${id}`)
 }
 

@@ -130,18 +130,19 @@ button { font: inherit; }
 .sponsor-card p { max-width: 320px; margin: auto 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .sponsor-card-link { font-size: 13px; font-weight: 900; }
 .sponsor-tier { font-size: 11px; font-weight: 900; letter-spacing: .1em; }
-.sponsor-card-platinum, .sponsor-card-gold, .sponsor-card-support { background: var(--paper); }
+.sponsor-card-platinum, .sponsor-card-gold, .sponsor-card-silver, .sponsor-card-bronze, .sponsor-card-support { background: var(--paper); }
 .sponsor-open { display: grid; grid-template-columns: 1fr .8fr; gap: 30px; padding: 30px; border: 2px solid var(--line); background: var(--ink); color: #fff; }
-.sponsor-open h3 { margin: 48px 0 0; color: var(--yellow); font-size: clamp(35px, 5vw, 68px); line-height: .92; }
-.sponsor-open p { max-width: 390px; align-self: end; margin: 0; color: #d7d7dc; font-size: 14px; line-height: 1.8; }
-.sponsor-tiers { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 18px; border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
-.sponsor-tier-item { min-height: 120px; padding: 20px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); }
+.sponsor-open h3 { margin: 48px 0 0; color: var(--yellow); font-size: clamp(32px, 5vw, 62px); line-height: .98; }
+.sponsor-open p { max-width: 430px; align-self: end; margin: 0; color: #d7d7dc; font-size: 14px; line-height: 1.8; }
+.sponsor-tiers { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
+.sponsor-tier-item { min-height: 188px; padding: 20px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); }
 .sponsor-tier-item span { font-size: 12px; font-weight: 900; letter-spacing: .08em; }
-.sponsor-tier-item p { margin: 24px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
-.sponsor-tier-blue, .sponsor-tier-yellow, .sponsor-tier-green { background: var(--paper); }
+.sponsor-tier-item strong { display: block; margin-top: 28px; font-size: 28px; line-height: 1; }
+.sponsor-tier-item p { margin: 18px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.sponsor-tier-blue, .sponsor-tier-yellow, .sponsor-tier-silver, .sponsor-tier-green { background: var(--paper); }
 .sponsor-detail { display: grid; grid-template-columns: minmax(240px, .7fr) 1fr; gap: 48px; }
 .sponsor-detail-brand { min-height: 280px; display: grid; place-items: center; padding: 32px; border: 2px solid var(--line); background: var(--paper); }
-.sponsor-detail-brand-platinum, .sponsor-detail-brand-gold, .sponsor-detail-brand-support { border-top: 14px solid var(--line); }
+.sponsor-detail-brand-platinum, .sponsor-detail-brand-gold, .sponsor-detail-brand-silver, .sponsor-detail-brand-bronze, .sponsor-detail-brand-support { border-top: 14px solid var(--line); }
 .sponsor-detail-brand img { display: block; width: min(100%, 430px); max-height: 220px; object-fit: contain; }
 .sponsor-detail-brand strong { font-size: clamp(28px, 5vw, 58px); text-align: center; }
 .sponsor-detail-copy { max-width: 680px; font-size: 19px; line-height: 1.85; font-weight: 700; }

@@ -32,7 +32,7 @@ server.tool('update_event', 'イベント情報を更新します。指定した
 server.tool('list_faqs', 'FAQ一覧を取得します。', {}, async () => result(await request('/api/mcp/faqs')))
 server.tool('upsert_faq', 'FAQを追加または更新します。', { id: z.string(), question: z.string(), answer: z.string(), sortOrder: z.number().optional() }, async (input) => result(await request('/api/mcp/faqs/upsert', { method: 'POST', body: JSON.stringify(input) })))
 server.tool('list_sponsors', 'スポンサー一覧を取得します。', {}, async () => result(await request('/api/mcp/sponsors')))
-server.tool('upsert_sponsor', 'スポンサーを追加または更新します。', { id: z.string(), name: z.string(), tier: z.enum(['PLATINUM', 'GOLD', 'SUPPORT']), description: z.string(), detail: z.string(), url: z.string().optional(), logo: z.string().optional(), sortOrder: z.number().optional() }, async (input) => result(await request('/api/mcp/sponsors/upsert', { method: 'POST', body: JSON.stringify(input) })))
+server.tool('upsert_sponsor', 'スポンサーを追加または更新します。', { id: z.string(), name: z.string(), tier: z.enum(['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'SUPPORT']), description: z.string(), detail: z.string(), url: z.string().optional(), logo: z.string().optional(), sortOrder: z.number().optional() }, async (input) => result(await request('/api/mcp/sponsors/upsert', { method: 'POST', body: JSON.stringify(input) })))
 
 const transport = new StdioServerTransport()
 await server.connect(transport)

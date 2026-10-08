@@ -167,7 +167,7 @@ export const registerMcpApi = (app: Hono) => {
     const description = stringValue(body, 'description')
     const detail = stringValue(body, 'detail')
     if (!id || !name || !tier || !description || detail === undefined) return invalid(c, 'id, name, tier, description, and detail are required')
-    if (!['PLATINUM', 'GOLD', 'SUPPORT'].includes(tier)) return invalid(c, 'tier is invalid')
+    if (!['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'SUPPORT'].includes(tier)) return invalid(c, 'tier is invalid')
     const current = sponsors.find((sponsor) => sponsor.id === id)
     const next: Sponsor = { id, name, tier: tier as Sponsor['tier'], description, detail, url: stringValue(body, 'url') ?? current?.url, logo: stringValue(body, 'logo') ?? current?.logo, sortOrder: numberValue(body, 'sortOrder') ?? current?.sortOrder ?? sponsors.length }
     saveSponsor(next)
