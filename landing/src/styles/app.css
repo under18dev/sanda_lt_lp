@@ -123,23 +123,27 @@ button { font: inherit; }
 .access-item span, .access-detail-grid span { font-size: 11px; font-weight: 900; letter-spacing: .08em; }
 .access-item strong { display: block; margin: 35px 0 8px; font-size: 25px; }
 .access-item p { margin: 0; font-size: 13px; color: var(--muted); }
-.sponsor-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
-.sponsor-card { min-height: 220px; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); color: inherit; text-decoration: none; }
-.sponsor-card img { display: block; width: 100%; max-width: 220px; height: 72px; object-fit: contain; object-position: left center; }
-.sponsor-card strong { margin-top: 30px; font-size: 28px; }
-.sponsor-card p { max-width: 320px; margin: auto 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
-.sponsor-card-link { font-size: 13px; font-weight: 900; }
-.sponsor-tier { font-size: 11px; font-weight: 900; letter-spacing: .1em; }
-.sponsor-card-platinum, .sponsor-card-gold, .sponsor-card-silver, .sponsor-card-bronze, .sponsor-card-support { background: var(--paper); }
+.sponsor-groups { display: grid; gap: 52px; padding: 12px 0 48px; }
+.sponsor-group { --logo-width: 160px; --logo-height: 72px; --logo-font: 18px; }
+.sponsor-group-platinum { --logo-width: 320px; --logo-height: 144px; --logo-font: 30px; }
+.sponsor-group-gold { --logo-width: 260px; --logo-height: 116px; --logo-font: 26px; }
+.sponsor-group-silver { --logo-width: 210px; --logo-height: 94px; --logo-font: 22px; }
+.sponsor-group h3 { margin: 0 0 24px; text-align: center; font-size: 18px; font-weight: 900; letter-spacing: 0; }
+.sponsor-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 28px 40px; margin: 0; padding: 0; list-style: none; }
+.sponsor-logos li { width: min(var(--logo-width), 100%); min-width: 0; }
+.sponsor-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: var(--logo-height); padding: 8px; color: inherit; text-decoration: none; }
+.sponsor-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.sponsor-logo strong { display: -webkit-box; max-height: 100%; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; font-size: var(--logo-font); line-height: 1.4; text-align: center; overflow-wrap: anywhere; }
+.sponsor-logo:hover { opacity: .7; }
+.sponsor-logo:focus-visible { outline: 2px solid var(--blue); outline-offset: 6px; }
 .sponsor-open { display: grid; grid-template-columns: 1fr .8fr; gap: 30px; padding: 30px; border: 2px solid var(--line); background: var(--ink); color: #fff; }
 .sponsor-open h3 { margin: 48px 0 0; color: var(--yellow); font-size: clamp(32px, 5vw, 62px); line-height: .98; }
 .sponsor-open p { max-width: 430px; align-self: end; margin: 0; color: #d7d7dc; font-size: 14px; line-height: 1.8; }
-.sponsor-tiers { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
-.sponsor-tier-item { min-height: 188px; padding: 20px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); }
-.sponsor-tier-item span { font-size: 12px; font-weight: 900; letter-spacing: .08em; }
-.sponsor-tier-item strong { display: block; margin-top: 28px; font-size: 28px; line-height: 1; }
-.sponsor-tier-item p { margin: 18px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-.sponsor-tier-blue, .sponsor-tier-yellow, .sponsor-tier-silver, .sponsor-tier-green { background: var(--paper); }
+.sponsor-tiers { margin-top: 32px; border-top: 2px solid var(--line); }
+.sponsor-tier-item { display: grid; grid-template-columns: 150px 100px minmax(0, 1fr); align-items: baseline; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.sponsor-tier-item span { font-size: 12px; font-weight: 900; letter-spacing: 0; }
+.sponsor-tier-item strong { font-size: 22px; line-height: 1.3; }
+.sponsor-tier-item p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
 .sponsor-detail { display: grid; grid-template-columns: minmax(240px, .7fr) 1fr; gap: 48px; }
 .sponsor-detail-brand { min-height: 280px; display: grid; place-items: center; padding: 32px; border: 2px solid var(--line); background: var(--paper); }
 .sponsor-detail-brand-platinum, .sponsor-detail-brand-gold, .sponsor-detail-brand-silver, .sponsor-detail-brand-bronze, .sponsor-detail-brand-support { border-top: 14px solid var(--line); }
@@ -226,7 +230,14 @@ button { font: inherit; }
   .timetable-row-break .timetable-row-main h3 { font-size: 16px; }
   .section-heading p { margin-top: 18px; }
   .preview-grid, .detail-grid, .speaker-grid, .speaker-grid-large, .feature-grid, .access-grid, .access-detail-grid { grid-template-columns: 1fr; }
-  .sponsor-grid, .sponsor-tiers { grid-template-columns: 1fr; }
+  .sponsor-groups { gap: 40px; }
+  .sponsor-group-platinum { --logo-width: 280px; --logo-height: 126px; }
+  .sponsor-group-gold { --logo-width: 230px; --logo-height: 104px; }
+  .sponsor-group-silver { --logo-width: 180px; --logo-height: 82px; }
+  .sponsor-group-bronze, .sponsor-group-support { --logo-width: 140px; --logo-height: 64px; }
+  .sponsor-logos { gap: 24px; }
+  .sponsor-tier-item { grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; }
+  .sponsor-tier-item p { grid-column: 1 / -1; }
   .sponsor-open { grid-template-columns: 1fr; padding: 22px; }
   .sponsor-open h3 { margin-top: 36px; }
   .sponsor-detail { grid-template-columns: 1fr; gap: 28px; }

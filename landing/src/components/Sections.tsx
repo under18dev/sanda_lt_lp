@@ -55,13 +55,27 @@ export const AccessPreview = () => (
   <section class="section wrap" id="access"><SectionHeading title="Access" description="一般参加は09:30から。スタッフ準備時間とは分けて案内しています。" /><div class="access-grid"><div class="access-item"><span>DATE</span><strong>{event.dateLabel}</strong><p>一般参加 {event.timeLabel}<br />{event.setupTimeLabel}</p></div><div class="access-item"><span>PLACE</span><strong>{event.venue}</strong><p>{event.venueDetail}</p></div><div class="access-item"><span>ENTRY</span><strong>{event.fee}</strong><p>定員 {event.capacity}</p></div></div><div class="section-link"><a class="pill" href="/access">アクセス・参加方法を見る →</a></div></section>
 )
 
-export const Sponsors = () => (
+export const Sponsors = () => {
+  const groups = [...sponsorTiers.map((tier) => tier.name), 'SUPPORT' as const]
+    .map((tier) => ({ tier, members: sponsors.filter((sponsor) => sponsor.tier === tier) }))
+    .filter((group) => group.members.length > 0)
+  return (
   <section class="section wrap sponsors-section" id="sponsors">
     <SectionHeading title="Sponsors" description="高校生が知らない世界と出会う教育機会を、ともにつくる協賛パートナーを募集しています。" />
-    {sponsors.length > 0 ? <div class="sponsor-grid">{sponsors.map((sponsor) => <a class={`sponsor-card sponsor-card-${sponsor.tier.toLowerCase()}`} href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id}><div class="sponsor-tier">{sponsor.tier}</div>{sponsor.logo ? <img src={sponsor.logo} alt={`${sponsor.name} ロゴ`} /> : <strong>{sponsor.name}</strong>}<p>{sponsor.description}</p><span class="sponsor-card-link">詳細を見る ↗</span></a>)}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>スポンサーではなく、<br />次世代と地域を支える<br />パートナーへ。</h3></div><p>協賛金は、登壇者・学生・地域の人が安心して集まれる場づくりに使います。企業・教育機関・団体それぞれの目的に合わせて、掲載や現地参加枠を調整します。</p></div>}
-    <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class={`sponsor-tier-item sponsor-tier-${tier.color}`}><span>{tier.name}</span><strong>{tier.price}</strong><p>{tier.description}</p></div>)}</div>
+    {groups.length > 0 ? <div class="sponsor-groups">{groups.map(({ tier, members }) => (
+      <section class={`sponsor-group sponsor-group-${tier.toLowerCase()}`} aria-labelledby={`sponsors-${tier.toLowerCase()}`}>
+        <h3 id={`sponsors-${tier.toLowerCase()}`}>{tier}</h3>
+        <ul class="sponsor-logos">{members.map((sponsor) => (
+          <li><a class="sponsor-logo" href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id} aria-label={`${sponsor.name}の詳細`} title={sponsor.name}>
+            {sponsor.logo ? <img src={sponsor.logo} alt={sponsor.name} loading="lazy" /> : <strong>{sponsor.name}</strong>}
+          </a></li>
+        ))}</ul>
+      </section>
+    ))}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>スポンサーではなく、<br />次世代と地域を支える<br />パートナーへ。</h3></div><p>協賛金は、登壇者・学生・地域の人が安心して集まれる場づくりに使います。企業・教育機関・団体それぞれの目的に合わせて、掲載や現地参加枠を調整します。</p></div>}
+    <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class="sponsor-tier-item"><span>{tier.name}</span><strong>{tier.price}</strong><p>{tier.description}</p></div>)}</div>
   </section>
-)
+  )
+}
 
 export const FaqPreview = () => (
   <section class="section wrap" id="faq"><SectionHeading title="FAQ" description="はじめてでも大丈夫。よくある質問をまとめています。" /><div class="faq-list">{faqs.slice(0, 4).map((faq) => <details key={faq.id}><summary>{faq.question}<span>＋</span></summary><p>{faq.answer}</p></details>)}</div><div class="section-link"><a class="pill" href="/faq">FAQをすべて見る →</a></div></section>
