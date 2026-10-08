@@ -103,6 +103,21 @@ const SponsorDialog = () => {
 
 const App = () => {
   useEffect(() => {
+    const cleanups = Array.from(document.querySelectorAll<HTMLElement>('.sponsor-groups')).map((group) => {
+      const images = Array.from(group.querySelectorAll<HTMLImageElement>('.sponsor-logo img'))
+      const updateRatio = () => {
+        const ratios = images.filter((image) => image.naturalWidth > 0 && image.naturalHeight > 0)
+          .map((image) => image.naturalWidth / image.naturalHeight)
+        if (ratios.length > 0) group.style.setProperty('--logo-aspect-ratio', String(Math.max(...ratios)))
+      }
+      images.forEach((image) => image.addEventListener('load', updateRatio))
+      updateRatio()
+      return () => images.forEach((image) => image.removeEventListener('load', updateRatio))
+    })
+    return () => cleanups.forEach((cleanup) => cleanup())
+  }, [])
+
+  useEffect(() => {
     const reveal = () => document.querySelectorAll<HTMLElement>('.section').forEach((section) => section.classList.add('is-visible'))
     reveal()
 

@@ -67,7 +67,7 @@ export const Sponsors = () => {
         <h3 id={`sponsors-${tier.toLowerCase()}`}>{tier}</h3>
         <ul class="sponsor-logos">{members.map((sponsor) => (
           <li><a class="sponsor-logo" href={`/sponsors/${sponsor.id}`} data-sponsor-id={sponsor.id} aria-label={`${sponsor.name}の詳細`} title={sponsor.name}>
-            {sponsor.logo ? <img src={sponsor.logo} alt={sponsor.name} loading="lazy" /> : <strong>{sponsor.name}</strong>}
+            {sponsor.logo ? <img src={sponsor.logo} alt={sponsor.name} /> : <strong>{sponsor.name}</strong>}
           </a></li>
         ))}</ul>
       </section>
