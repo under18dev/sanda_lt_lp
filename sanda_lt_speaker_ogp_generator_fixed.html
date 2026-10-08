@@ -117,7 +117,12 @@ button.sub{background:#edf3f9;color:#203040}
   position:absolute;inset:0;border-radius:34px;background:#f3f6f9;
   overflow:hidden;border:2px solid #d9e3ed
 }
-.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-image{
+  width:100%;height:100%;display:block;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
 .photo-label{
   position:absolute;left:-20px;bottom:-22px;background:#fff;border-radius:22px;
   box-shadow:0 12px 30px rgba(32,48,64,.13);padding:14px 18px;
@@ -212,7 +217,7 @@ Webエンジニアの世界</div>
 
       <div class="photo-wrap">
         <div class="photo-frame">
-          <img id="outPhoto" alt="speaker" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 700'%3E%3Crect width='600' height='700' fill='%23edf2f7'/%3E%3Ccircle cx='300' cy='240' r='110' fill='%23c8d4df'/%3E%3Crect x='145' y='385' width='310' height='230' rx='110' fill='%23d2dce5'/%3E%3Ctext x='300' y='655' text-anchor='middle' font-size='30' fill='%23778a9d' font-family='sans-serif'%3ESPEAKER PHOTO%3C/text%3E%3C/svg%3E">
+          <div id="outPhoto" class="photo-image" role="img" aria-label="speaker"></div>
         </div>
         <div class="photo-label">SPEAKER</div>
       </div>
@@ -242,6 +247,11 @@ const defaults = {
   footerCopy:'話そう。聞こう。まだ見ぬ世界を。',
   tags:'TECH, WEB, CAREER'
 };
+const defaultPhoto = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 700'%3E%3Crect width='600' height='700' fill='%23edf2f7'/%3E%3Ccircle cx='300' cy='240' r='110' fill='%23c8d4df'/%3E%3Crect x='145' y='385' width='310' height='230' rx='110' fill='%23d2dce5'/%3E%3Ctext x='300' y='655' text-anchor='middle' font-size='30' fill='%23778a9d' font-family='sans-serif'%3ESPEAKER PHOTO%3C/text%3E%3C/svg%3E";
+
+function setPhoto(src){
+  document.getElementById('outPhoto').style.backgroundImage=`url("${src}")`;
+}
 
 function renderEventTitle(v){
   const out=document.getElementById('outEventTitle');
@@ -270,12 +280,13 @@ function update(){
 document.getElementById('photoInput').addEventListener('change',e=>{
   const file=e.target.files?.[0]; if(!file)return;
   const reader=new FileReader();
-  reader.onload=()=>document.getElementById('outPhoto').src=reader.result;
+  reader.onload=()=>setPhoto(reader.result);
   reader.readAsDataURL(file);
 });
 document.getElementById('resetBtn').addEventListener('click',()=>{
   Object.entries(defaults).forEach(([id,v])=>document.getElementById(id).value=v);
   document.getElementById('photoInput').value='';
+  setPhoto(defaultPhoto);
   update();
 });
 document.getElementById('downloadBtn').addEventListener('click',async()=>{
@@ -288,6 +299,7 @@ document.getElementById('downloadBtn').addEventListener('click',async()=>{
   a.href=canvas.toDataURL('image/png');
   a.click();
 });
+setPhoto(defaultPhoto);
 update();
 </script>
 </body>

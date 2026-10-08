@@ -165,11 +165,11 @@ button { font: inherit; }
 .final-cta { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 92px; padding: 34px 0; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
 .final-cta h2 { margin: 24px 0 0; white-space: pre-line; font-size: clamp(40px, 6vw, 75px); line-height: .9; letter-spacing: -.025em; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; padding: 25px 0; font-size: 12px; font-weight: 800; }
-.privacy-intro { padding: 64px 0 32px; border-bottom: 2px solid var(--line); }
+.privacy-intro { max-width: 800px; padding: 64px 0 32px; border-bottom: 2px solid var(--line); }
 .privacy-intro h1 { margin: 24px 0; font-size: 36px; line-height: 1.4; letter-spacing: 0; overflow-wrap: anywhere; }
 .privacy-intro p { max-width: 800px; font-size: 15px; line-height: 1.9; }
 .privacy-intro .privacy-date { margin-top: 24px; color: var(--muted); font-size: 13px; }
-.privacy-content { padding: 16px 0 64px; }
+.privacy-content { max-width: 800px; padding: 16px 0 64px; }
 .privacy-content section { max-width: 800px; padding: 24px 0; }
 .privacy-content h2 { margin: 0 0 16px; font-size: 20px; line-height: 1.5; letter-spacing: 0; }
 .privacy-content p, .privacy-content li { font-size: 15px; line-height: 1.9; overflow-wrap: anywhere; }
