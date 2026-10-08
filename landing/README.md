@@ -30,6 +30,8 @@ Available pages:
 
 The production container serves the Hono app on port `3000`. `cloudflared` runs as a separate Compose service and connects to the `web` service through the internal Docker network.
 
+Each client asset build generates `dist/asset-version.txt`. The app adds this version to its CSS and JavaScript URLs so a newly built Docker image uses fresh cache keys. If Docker reuses the cached asset build layer, the assets and their version remain unchanged. Use `docker compose build --no-cache web` to force a fresh build of otherwise unchanged sources.
+
 Copy `.env.example` to `.env`, set the dashboard-managed Cloudflare Tunnel token, and configure the public hostname origin as `http://web:3000` in Cloudflare Zero Trust.
 
 ```sh

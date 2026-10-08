@@ -1,7 +1,14 @@
 import { defineConfig } from 'vite'
+import { randomUUID } from 'node:crypto'
 
 export default defineConfig({
   publicDir: 'public',
+  plugins: [{
+    name: 'asset-version',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'asset-version.txt', source: randomUUID() })
+    },
+  }],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

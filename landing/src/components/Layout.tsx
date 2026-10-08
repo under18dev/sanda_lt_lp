@@ -1,7 +1,10 @@
 import type { Child } from 'hono/jsx'
+import { existsSync, readFileSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
 import { event, sessions, sponsors } from '../data/runtime'
 
-const assetVersion = '2026-09-27-22'
+const assetVersionPath = './dist/asset-version.txt'
+const developmentAssetVersion = randomUUID()
 
 type LayoutProps = {
   title?: string
@@ -13,6 +16,7 @@ type LayoutProps = {
 }
 
 export const Layout = ({ title, description = event.description, ogImage = event.defaultOgpImage, url, children, active }: LayoutProps) => {
+  const assetVersion = existsSync(assetVersionPath) ? readFileSync(assetVersionPath, 'utf8').trim() : developmentAssetVersion
   const pageTitle = title ? `${title} | ${event.title}` : event.title
   const requestPath = url ? new URL(url).pathname : '/'
   const canonicalUrl = new URL(requestPath, event.siteUrl).toString()
