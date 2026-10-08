@@ -73,6 +73,10 @@ export const Sponsors = () => {
       </section>
     ))}</div> : <div class="sponsor-open"><div><div class="eyebrow">PARTNERS WANTED</div><h3>スポンサーではなく、<br />次世代と地域を支える<br />パートナーへ。</h3></div><p>協賛金は、登壇者・学生・地域の人が安心して集まれる場づくりに使います。企業・教育機関・団体それぞれの目的に合わせて、掲載や現地参加枠を調整します。</p></div>}
     <div class="sponsor-tiers">{sponsorTiers.map((tier) => <div class="sponsor-tier-item"><span>{tier.name}</span><strong>{tier.price}</strong><p>{tier.description}</p></div>)}</div>
+    <div class="section-link sponsor-apply">
+      <a class="pill primary" href="https://docs.google.com/forms/d/e/1FAIpQLScPGN_iBEnoUYUH4xb4FquecO-C7K0KGBznN9PgtpNzUnpo2Q/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">スポンサーに申し込む ↗</a>
+      <a href="/privacy">プライバシーポリシー</a>
+    </div>
   </section>
   )
 }

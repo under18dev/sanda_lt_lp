@@ -3,6 +3,7 @@ import { serveStatic } from 'hono/bun'
 import { event, faqs, sessions, speakers, sponsors, refreshStore, reorderFaqs, reorderSessions, reorderSpeakers, reorderSponsors, saveEvent, saveFaq, saveSession, saveSpeaker, saveSponsor, deleteFaq, deleteSession, deleteSpeaker, deleteSponsor } from './data/runtime'
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
+import { PrivacyPolicyPage } from './components/PrivacyPolicy'
 import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
 import { Dashboard, EventForm, FaqForm, FaqList, Login, OgpForm, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
 import { SpeakerOgpGenerator } from './admin/speaker-ogp'
@@ -49,7 +50,7 @@ const xmlEscape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('
 app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nSitemap: ${event.siteUrl}/sitemap.xml\n`))
 
 app.get('/sitemap.xml', (c) => {
-  const paths = ['/', '/timetable', '/speakers', '/access', '/faq', '/sponsors', ...sessions.map((session) => `/sessions/${session.id}`), ...speakers.map((speaker) => `/speakers/${speaker.id}`), ...sponsors.map((sponsor) => `/sponsors/${sponsor.id}`)]
+  const paths = ['/', '/timetable', '/speakers', '/access', '/faq', '/sponsors', '/privacy', ...sessions.map((session) => `/sessions/${session.id}`), ...speakers.map((speaker) => `/speakers/${speaker.id}`), ...sponsors.map((sponsor) => `/sponsors/${sponsor.id}`)]
   const body = paths.map((path) => `  <url><loc>${xmlEscape(new URL(path, event.siteUrl).toString())}</loc></url>`).join('\n')
   return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`, 200, { 'Content-Type': 'application/xml; charset=UTF-8' })
 })
@@ -192,6 +193,7 @@ app.get('/timetable', (c) => c.html(<Layout title="タイムテーブル" url={c
 app.get('/speakers', (c) => c.html(<Layout title="登壇者" url={c.req.url} active="speakers"><SpeakersPage /></Layout>))
 app.get('/access', (c) => c.html(<Layout title="アクセス" url={c.req.url} active="access"><AccessPage /></Layout>))
 app.get('/faq', (c) => c.html(<Layout title="よくある質問" url={c.req.url} active="faq"><FaqPage /></Layout>))
+app.get('/privacy', (c) => c.html(<Layout title="プライバシーポリシー" description="イベントおよび公式サイトにおける個人情報の取り扱いについて。" url={c.req.url}><PrivacyPolicyPage /></Layout>))
 app.get('/sponsors', (c) => c.html(<Layout title="協賛・スポンサー" url={c.req.url}><SponsorsPage /></Layout>))
 app.get('/sponsors/:id', (c) => c.html(<Layout title={sponsors.find((item) => item.id === c.req.param('id'))?.name ?? 'スポンサー'} url={c.req.url}><SponsorPage sponsorId={c.req.param('id')} /></Layout>))
 

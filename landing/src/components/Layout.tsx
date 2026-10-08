@@ -114,6 +114,7 @@ export const Footer = () => (
   <footer class="site-footer wrap">
     <span>{event.title} / 三田学園文化祭LT会</span>
     <span>{event.dateLabel} / {event.fee}</span>
+    <a href="/privacy">プライバシーポリシー</a>
   </footer>
 )
 
