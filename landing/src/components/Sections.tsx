@@ -46,8 +46,8 @@ export const SpeakersPreview = () => (
 
 export const AiWerewolf = () => (
   <section class="section wrap" id="special">
-    <SectionHeading title="Special" description="このイベントでしか覗けない、つくる側の世界。" />
-    <div class="feature-grid"><article class="feature-main"><span class="pill pill-dark">13:00 — 15:00</span><h3>AI人狼を遊んで、<br />つくり方を知る。</h3><p>まずは参加者としてゲームを体験。そのあと、生成AIにどう作らせたのか、どこまで作れたのかを見せます。</p><span class="feature-mark" aria-hidden="true">AI</span></article><article class="feature-side"><div class="eyebrow">PLAY → HOW IT WAS MADE</div><h3>ほとんどコードを書かずに、アプリを作る。</h3><p>プロンプト、ログ、内部の仕組み。AIと一緒に開発する現場を、そのまま紹介します。</p><a href="/sessions/ai-werewolf-making">詳細を見る ↗</a></article></div>
+    <SectionHeading title="Special" description="このイベントでしか聞けない、世代を越えた対話。" />
+    <div class="feature-grid"><article class="feature-main"><span class="pill pill-dark">12:05 — 12:45</span><h3>飯島さんと、<br />これからの話をしよう。</h3><p>飯島春樹さんのLT枠とAI人狼枠をひとつにまとめ、飯島さんとのパネルディスカッションを行います。</p><span class="feature-mark" aria-hidden="true">PANEL</span></article><article class="feature-side"><div class="eyebrow">SPECIAL PANEL</div><h3>ひとつのテーマを、いくつもの視点から。</h3><p>飯島さんと田中博悠が、技術や活動について語ります。会場からの質問も歓迎します。</p><a href="/sessions/ai-werewolf-play">詳細を見る ↗</a></article></div>
   </section>
 )
 
