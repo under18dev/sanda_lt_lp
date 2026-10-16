@@ -44,12 +44,17 @@ export const SpeakersPreview = () => (
   <section class="section wrap" id="speakers"><SectionHeading title="Speakers" description="話す人が違えば、見える世界も変わる。" /><SpeakerList ids={speakers.map((speaker) => speaker.id)} /><div class="section-link"><a class="pill" href="/speakers">登壇者一覧を見る →</a></div></section>
 )
 
-export const AiWerewolf = () => (
-  <section class="section wrap" id="special">
-    <SectionHeading title="Special" description="このイベントでしか覗けない、つくる側の世界。" />
-    <div class="feature-grid"><article class="feature-main"><span class="pill pill-dark">13:00 — 15:00</span><h3>AI人狼を遊んで、<br />つくり方を知る。</h3><p>まずは参加者としてゲームを体験。そのあと、生成AIにどう作らせたのか、どこまで作れたのかを見せます。</p><span class="feature-mark" aria-hidden="true">AI</span></article><article class="feature-side"><div class="eyebrow">PLAY → HOW IT WAS MADE</div><h3>ほとんどコードを書かずに、アプリを作る。</h3><p>プロンプト、ログ、内部の仕組み。AIと一緒に開発する現場を、そのまま紹介します。</p><a href="/sessions/ai-werewolf-making">詳細を見る ↗</a></article></div>
+export const PanelDiscussion = () => {
+  const session = sessions.find((candidate) => candidate.id === 'panel-discussion')
+  if (!session) return null
+  const participants = session.speakerIds.map((id) => speakers.find((speaker) => speaker.id === id)).filter((speaker) => speaker !== undefined)
+  return (
+  <section class="section wrap panel-special" id="special">
+    <SectionHeading title="Special" description={session.summary} />
+    <div class="feature-grid"><article class="feature-main"><span class="pill pill-dark">{session.start} — {session.end}</span><h3>{session.title}</h3><p>{session.detail}</p><span class="feature-mark" aria-hidden="true">TALK</span></article><article class="feature-side"><div class="eyebrow">PANEL DISCUSSION</div><h3>登壇者</h3><ul>{participants.map((speaker) => <li key={speaker.id}><a href={`/speakers/${speaker.id}`}>{speaker.name}</a><p>{speaker.role}</p></li>)}</ul><a href={`/sessions/${session.id}`}>詳細を見る ↗</a></article></div>
   </section>
-)
+  )
+}
 
 export const AccessPreview = () => (
   <section class="section wrap" id="access"><SectionHeading title="Access" description="一般参加は09:30から。スタッフ準備時間とは分けて案内しています。" /><div class="access-grid"><div class="access-item"><span>DATE</span><strong>{event.dateLabel}</strong><p>一般参加 {event.timeLabel}<br />{event.setupTimeLabel}</p></div><div class="access-item"><span>PLACE</span><strong>{event.venue}</strong><p>{event.venueDetail}</p></div><div class="access-item"><span>ENTRY</span><strong>{event.fee}</strong><p>定員 {event.capacity}</p></div></div><div class="section-link"><a class="pill" href="/access">アクセス・参加方法を見る →</a></div></section>

@@ -106,6 +106,10 @@ button { font: inherit; }
 .feature-side h3 { margin: 47px 0 15px; font-size: 28px; line-height: 1.08; }
 .feature-side p { margin: 0 0 25px; font-size: 14px; line-height: 1.7; }
 .feature-side a { font-weight: 900; }
+.panel-special .feature-main h3 { font-size: 36px; line-height: 1.5; letter-spacing: 0; overflow-wrap: anywhere; }
+.panel-special .feature-main p { white-space: pre-line; }
+.panel-special .feature-mark { z-index: 0; opacity: .2; pointer-events: none; }
+.panel-special .feature-side ul { list-style: none; padding: 0; margin: 24px 0; }
 .speaker-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--line); border-left: 2px solid var(--line); }
 .speaker-grid-large { grid-template-columns: repeat(3, 1fr); }
 .speaker-card { min-height: 205px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); background: var(--paper); }

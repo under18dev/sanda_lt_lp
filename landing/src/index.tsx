@@ -4,7 +4,7 @@ import { event, faqs, sessions, speakers, sponsors, refreshStore, reorderFaqs, r
 import { createEventOgp, createSessionOgp, createSpeakerOgp } from './ogp'
 import { Layout } from './components/Layout'
 import { PrivacyPolicyPage } from './components/PrivacyPolicy'
-import { About, AccessPage, AccessPreview, AiWerewolf, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
+import { About, AccessPage, AccessPreview, PanelDiscussion, FaqPage, FaqPreview, Hero, SessionPage, SponsorPage, Sponsors, SponsorsPage, SpeakersPage, SpeakersPreview, SpeakerPage, TimetablePage, TimetablePreview } from './components/Sections'
 import { Dashboard, EventForm, FaqForm, FaqList, Login, OgpForm, SessionForm, SessionList, SponsorForm, SponsorList, SpeakerForm, SpeakerList } from './admin/views'
 import { SpeakerOgpGenerator } from './admin/speaker-ogp'
 import { adminSession, login, logout, requireAdmin, validCsrf } from './admin/auth'
@@ -179,7 +179,7 @@ app.get('/', (c) => c.html(
       <Hero />
       <About />
       <TimetablePreview />
-      <AiWerewolf />
+      <PanelDiscussion />
       <SpeakersPreview />
       <AccessPreview />
       <Sponsors />
@@ -198,6 +198,7 @@ app.get('/sponsors', (c) => c.html(<Layout title="協賛・スポンサー" url=
 app.get('/sponsors/:id', (c) => c.html(<Layout title={sponsors.find((item) => item.id === c.req.param('id'))?.name ?? 'スポンサー'} url={c.req.url}><SponsorPage sponsorId={c.req.param('id')} /></Layout>))
 
 app.get('/sessions/:id', (c) => {
+  if (['ai-werewolf-play', 'ai-werewolf-making'].includes(c.req.param('id')) && sessions.some((session) => session.id === 'panel-discussion')) return c.redirect('/sessions/panel-discussion', 301)
   const session = sessions.find((candidate) => candidate.id === c.req.param('id'))
   if (!session) return c.html(<Layout title="Not found"><main><div class="not-found wrap"><div class="eyebrow">404 / SESSION</div><h1>Session not found</h1><a class="pill" href="/timetable">タイムテーブルに戻る →</a></div></main></Layout>, 404)
   return c.html(<Layout title={session.title} ogImage={`/ogp/sessions/${session.id}`} url={c.req.url} active="timetable"><SessionPage session={session} /></Layout>)
